@@ -119,6 +119,11 @@ input[type=color]{width:28px;height:18px;border:1px solid #1e1e1e;background:non
       <div class="sld-top"><span class="sld-label">GAP</span><span class="sld-val" id="v-gap">0.00</span></div>
       <input type="range" min="0" max="0.85" value="0" step="0.01" id="sl-gap" oninput="P.gap=+this.value;$('v-gap').textContent=(+this.value).toFixed(2);render()">
     </div>
+    <!-- drift / flow align -->
+    <div class="sld-row">
+      <div class="sld-top"><span class="sld-label">DRIFT</span><span class="sld-val" id="v-align">0.00</span></div>
+      <input type="range" min="0" max="1" value="0" step="0.01" id="sl-align" oninput="P.align=+this.value;$('v-align').textContent=(+this.value).toFixed(2);render()">
+    </div>
   </div>
 
   <div class="sec">
@@ -132,20 +137,13 @@ input[type=color]{width:28px;height:18px;border:1px solid #1e1e1e;background:non
 
   <div class="sec">
     <div class="sec-label">METABALL FUSION</div>
-    <div style="font-size:6.5px;letter-spacing:1.5px;color:#1e1e1e;margin-bottom:8px;line-height:1.6">
-      SVG BOOLEAN UNION — shapes fuse<br>along shared alpha fields.
+    <div class="sld-row">
+      <div class="sld-top"><span class="sld-label">SPREAD</span><span class="sld-val" id="v-blur">9</span></div>
+      <input type="range" min="0" max="36" value="9" step="0.5" id="sl-blur" oninput="P.blur=+this.value;$('v-blur').textContent=(+this.value).toFixed(1);render()">
     </div>
     <div class="sld-row">
-      <div class="sld-top"><span class="sld-label">SPREAD</span><span class="sld-val" id="v-blur">10</span></div>
-      <input type="range" min="0" max="36" value="10" step="0.5" id="sl-blur" oninput="P.blur=+this.value;$('v-blur').textContent=(+this.value).toFixed(1);render()">
-    </div>
-    <div class="sld-row">
-      <div class="sld-top"><span class="sld-label">FUSION EDGE</span><span class="sld-val" id="v-sharp">38</span></div>
-      <input type="range" min="8" max="120" value="38" step="1" id="sl-sharp" oninput="P.sharp=+this.value;$('v-sharp').textContent=this.value;render()">
-    </div>
-    <div class="sld-row">
-      <div class="sld-top"><span class="sld-label">THRESHOLD</span><span class="sld-val" id="v-thresh">0.42</span></div>
-      <input type="range" min="0.10" max="0.90" value="0.42" step="0.01" id="sl-thresh" oninput="P.thresh=+this.value;$('v-thresh').textContent=(+this.value).toFixed(2);render()">
+      <div class="sld-top"><span class="sld-label">THRESHOLD</span><span class="sld-val" id="v-thresh">0.44</span></div>
+      <input type="range" min="0.10" max="0.90" value="0.44" step="0.01" id="sl-thresh" oninput="P.thresh=+this.value;$('v-thresh').textContent=(+this.value).toFixed(2);render()">
     </div>
   </div>
 
@@ -177,8 +175,10 @@ input[type=color]{width:28px;height:18px;border:1px solid #1e1e1e;background:non
 
   <div style="display:flex;gap:3px;margin-top:2px">
     <button class="export-btn" onclick="exportSVG()" style="flex:1">↓ EXPORT</button>
+    <button id="btn-rand" onclick="randomize()"
+      style="background:transparent;border:1px solid #1e1e1e;color:#3a3a3a;font-family:'Courier New',monospace;font-size:8px;letter-spacing:2px;cursor:pointer;border-radius:1px;padding:9px 8px;transition:all .1s;white-space:nowrap">? RAND</button>
     <button id="btn-reset" onclick="resetDefaults()"
-      style="background:transparent;border:1px solid #1e1e1e;color:#3a3a3a;font-family:'Courier New',monospace;font-size:8px;letter-spacing:2px;cursor:pointer;border-radius:1px;padding:9px 10px;transition:all .1s;white-space:nowrap">↺ RESET</button>
+      style="background:transparent;border:1px solid #1e1e1e;color:#3a3a3a;font-family:'Courier New',monospace;font-size:8px;letter-spacing:2px;cursor:pointer;border-radius:1px;padding:9px 8px;transition:all .1s;white-space:nowrap">↺ RST</button>
   </div>
 </div></div>
 
@@ -219,40 +219,60 @@ function onRowsInput(v){
 
 const noise=(x,y)=>{const n=Math.sin(x*127.1+y*311.7)*43758.5453;return n-Math.floor(n)};
 
+// Helper: smooth radial field centred at (cx,cy), radius r
+const radial=(x,y,cx,cy,r)=>Math.max(0,1-Math.hypot(x-cx,y-cy)/r);
+// Global breathe: slow sine applied to all fields so ▶ FLOW always animates
+const breathe=(v,t,depth=0.18)=>Math.max(0,Math.min(1, v*(1+depth*Math.sin(t)) ));
+
 const FN={
-  arch:    (x,y,t)=>Math.max(0,1-(x*2-1)**2)*(0.15+0.85*y),
-  dome:    (x,y,t)=>Math.max(0,1-(x*2-1)**2)*(1-y*.55),
-  core:    (x,y,t)=>1-Math.min(1,Math.hypot(x-.5,y-.5)*2.5),
-  ring:    (x,y,t)=>{const d=Math.hypot(x-.5,y-.5)*2;return Math.max(0,1-Math.abs(d-.65)*5)},
+  arch:    (x,y,t)=>breathe(Math.max(0,1-(x*2-1)**2)*(0.15+0.85*y), t),
+  dome:    (x,y,t)=>breathe(Math.max(0,1-(x*2-1)**2)*(1-y*.55), t),
+  core:    (x,y,t)=>breathe(1-Math.min(1,Math.hypot(x-.5,y-.5)*2.5), t),
+  ring:    (x,y,t)=>{const d=Math.hypot(x-.5,y-.5)*2;return breathe(Math.max(0,1-Math.abs(d-.65)*5),t)},
+  quad:    (x,y,t)=>breathe(Math.max(
+             radial(x,y,.25,.25,.32), radial(x,y,.75,.25,.32),
+             radial(x,y,.25,.75,.32), radial(x,y,.75,.75,.32)), t),
+  cross:   (x,y,t)=>breathe(Math.max(
+             Math.max(0,1-Math.abs(x-.5)*3.5),
+             Math.max(0,1-Math.abs(y-.5)*3.5)), t),
+  sym4:    (x,y,t)=>{const ax=Math.abs(x-.5),ay=Math.abs(y-.5);return breathe(Math.max(0,1-(ax+ay)*2.2),t)},
+  lattice: (x,y,t)=>breathe(Math.max(
+             radial(x,y,.17,.17,.18),radial(x,y,.5,.17,.18),radial(x,y,.83,.17,.18),
+             radial(x,y,.17,.5,.18), radial(x,y,.5,.5,.25), radial(x,y,.83,.5,.18),
+             radial(x,y,.17,.83,.18),radial(x,y,.5,.83,.18),radial(x,y,.83,.83,.18)), t),
   wave_h:  (x,y,t)=>.5+.5*Math.sin(y*Math.PI*4-t),
   wave_v:  (x,y,t)=>.5+.5*Math.sin(x*Math.PI*4-t),
   wave_d:  (x,y,t)=>.5+.5*Math.sin((x+y)*Math.PI*3-t),
   ripple:  (x,y,t)=>.5+.5*Math.sin(Math.hypot(x-.5,y-.5)*Math.PI*10-t),
-  slope:   (x,y,t)=>(x+y)/2,
-  scatter: (x,y,t)=>noise(Math.round(x*14),Math.round(y*14)),
-  check:   (x,y,t)=>(Math.floor(x*5)+Math.floor(y*5))%2===0?.9:.1,
-  flat:    (x,y,t)=>.74,
-  pinch:   (x,y,t)=>Math.max(0,1-(Math.abs(x-.5)+Math.abs(y-.5))*2.2),
+  slope:   (x,y,t)=>breathe((x+y)/2, t, 0.25),
+  scatter: (x,y,t)=>breathe(noise(Math.round(x*14),Math.round(y*14)), t, 0.2),
+  flat:    (x,y,t)=>breathe(.74, t, 0.22),
+  pinch:   (x,y,t)=>breathe(Math.max(0,1-(Math.abs(x-.5)+Math.abs(y-.5))*2.2), t),
   stripes: (x,y,t)=>Math.max(0,Math.sin(y*Math.PI*7-t)),
   diag_s:  (x,y,t)=>Math.max(0,Math.sin((x-y)*Math.PI*7-t)),
-  corners: (x,y,t)=>Math.max(0,(Math.abs(x-.5)+Math.abs(y-.5)-.25)*3),
+  corners: (x,y,t)=>breathe(Math.max(0,(Math.abs(x-.5)+Math.abs(y-.5)-.25)*3), t, 0.25),
 };
-const FL={arch:'ARCH',dome:'DOME',core:'CORE',ring:'RING',wave_h:'WV·H',wave_v:'WV·V',
-  wave_d:'WV·D',ripple:'RIPL',slope:'SLPE',scatter:'RND',check:'CHCK',
+const FL={arch:'ARCH',dome:'DOME',core:'CORE',ring:'RING',quad:'QUAD',cross:'CRSS',
+  sym4:'SYM4',lattice:'LATT',wave_h:'WV·H',wave_v:'WV·V',
+  wave_d:'WV·D',ripple:'RIPL',slope:'SLPE',scatter:'RND',
   flat:'FLAT',pinch:'PNCH',stripes:'STRP',diag_s:'DSTR',corners:'CORN'};
 
+// align & gap are style keys — NOT overwritten by preset switching
 const FACTORY=[
-  {n:'ARCH',     shape:'circle', cols:9,  rows:9,  field:'arch',    blur:10, sharp:38, thresh:.42, minSz:0,   maxSz:.90, fg:'#0f0f0f',bg:'#d2d2d2'},
-  {n:'BLOB WAVE',shape:'circle', cols:8,  rows:6,  field:'wave_h',  blur:14, sharp:32, thresh:.38, minSz:.04, maxSz:1.10,fg:'#0f0f0f',bg:'#d2d2d2'},
-  {n:'CORE GLOW',shape:'circle', cols:9,  rows:9,  field:'core',    blur:14, sharp:46, thresh:.40, minSz:0,   maxSz:1.08,fg:'#0f0f0f',bg:'#d2d2d2'},
-  {n:'RIPPLE',   shape:'circle', cols:11, rows:11, field:'ripple',  blur:9,  sharp:42, thresh:.44, minSz:0,   maxSz:.88, fg:'#0f0f0f',bg:'#d2d2d2'},
-  {n:'PIXEL ARC',shape:'square', cols:11, rows:9,  field:'arch',    blur:1,  sharp:95, thresh:.48, minSz:0,   maxSz:.86, fg:'#0f0f0f',bg:'#d2d2d2'},
-  {n:'GRID MELT',shape:'square', cols:8,  rows:8,  field:'flat',    blur:6,  sharp:52, thresh:.44, minSz:.44, maxSz:.74, fg:'#0f0f0f',bg:'#d2d2d2'},
-  {n:'SCATTER',  shape:'circle', cols:10, rows:10, field:'scatter', blur:5,  sharp:28, thresh:.36, minSz:0,   maxSz:.86, fg:'#0f0f0f',bg:'#d2d2d2'},
-  {n:'DIAGONAL', shape:'circle', cols:8,  rows:8,  field:'slope',   blur:11, sharp:36, thresh:.40, minSz:0,   maxSz:.95, fg:'#0f0f0f',bg:'#d2d2d2'},
+  // ── TECH / REFERENCE-STYLE ──
+  {n:'CIRCUIT',   shape:'square', cols:7,  rows:7,  field:'flat',   blur:9,  sharp:55, thresh:.44, minSz:.55, maxSz:.78, fg:'#0d0d0d',bg:'#d0d0d0'},
+  {n:'MANDALA',   shape:'square', cols:7,  rows:7,  field:'sym4',   blur:10, sharp:52, thresh:.40, minSz:.05, maxSz:.95, fg:'#0d0d0d',bg:'#d0d0d0'},
+  {n:'QUAD LOCK', shape:'square', cols:9,  rows:9,  field:'quad',   blur:8,  sharp:60, thresh:.42, minSz:.1,  maxSz:.90, fg:'#0d0d0d',bg:'#d0d0d0'},
+  {n:'LATTICE',   shape:'square', cols:10, rows:10, field:'lattice',blur:7,  sharp:58, thresh:.42, minSz:.08, maxSz:.88, fg:'#0d0d0d',bg:'#d0d0d0'},
+  {n:'CROSS GRID',shape:'square', cols:8,  rows:8,  field:'cross',  blur:10, sharp:50, thresh:.40, minSz:.05, maxSz:.95, fg:'#0d0d0d',bg:'#d0d0d0'},
+  // ── ORGANIC ──
+  {n:'ARCH',      shape:'circle', cols:9,  rows:9,  field:'arch',   blur:10, sharp:38, thresh:.42, minSz:0,   maxSz:.90, fg:'#0f0f0f',bg:'#d2d2d2'},
+  {n:'BLOB WAVE', shape:'circle', cols:8,  rows:6,  field:'wave_h', blur:14, sharp:32, thresh:.38, minSz:.04, maxSz:1.10,fg:'#0f0f0f',bg:'#d2d2d2'},
+  {n:'RIPPLE',    shape:'circle', cols:11, rows:11, field:'ripple', blur:9,  sharp:42, thresh:.44, minSz:0,   maxSz:.88, fg:'#0f0f0f',bg:'#d2d2d2'},
 ];
 
-let P={shape:'circle',cols:9,rows:9,field:'arch',blur:10,sharp:38,thresh:.42,minSz:0,maxSz:.90,gap:0,fg:'#0f0f0f',bg:'#d2d2d2',inv:false};
+let P={shape:'square',cols:7,rows:7,field:'flat',blur:9,thresh:.44,minSz:.55,maxSz:.78,gap:0,align:.65,fg:'#0d0d0d',bg:'#d0d0d0',inv:false};
+const DEFAULTS=Object.assign({},P);
 let gridLocked=true;
 let animating=false,animT=0,raf=null;
 
@@ -276,8 +296,9 @@ function buildSVG(S,t){
   const ch=P.rows>1?uh/(P.rows-1):uh;
   const maxR=Math.min(cw,ch)*.5*(1-P.gap);
   const fn=FN[P.field];
-  const K=P.sharp;
+  const K=120; // fusion edge always maxed — crisp boolean-union merging
   const off=-(K*P.thresh);
+  const eps=0.5/Math.max(P.cols,P.rows); // gradient sample step in normalised space
   let shapes='';
   for(let r=0;r<P.rows;r++){
     for(let c=0;c<P.cols;c++){
@@ -287,17 +308,37 @@ function buildSVG(S,t){
       v=Math.max(0,Math.min(1,v));
       if(P.inv)v=1-v;
       const rad=Math.max(.4,maxR*(P.minSz+v*(P.maxSz-P.minSz)));
-      const x=(pad+c*cw).toFixed(2),y=(pad+r*ch).toFixed(2);
+
+      // ── DRIFT: pull each shape TOWARD the field peak ─────────────────────
+      // Large shapes (high v) stay centred. Small shapes drift UP the gradient
+      // — toward the nearest hotspot — hugging as close as possible to it.
+      // This is the mechanism behind the Adidas reference: corner shapes
+      // press inward toward the emblem centre, fusing into that interlocked look.
+      let ox=0,oy=0;
+      if(P.align>0){
+        const vr=fn(Math.min(1,nx+eps),ny,t);
+        const vl=fn(Math.max(0,nx-eps),ny,t);
+        const vd=fn(nx,Math.min(1,ny+eps),t);
+        const vu=fn(nx,Math.max(0,ny-eps),t);
+        let gx=(vr-vl)/(2*eps), gy=(vd-vu)/(2*eps);
+        if(P.inv){gx=-gx;gy=-gy;}
+        const len=Math.hypot(gx,gy)||1;
+        gx/=len;gy/=len;
+        // small shapes (low v) drift furthest toward the peak
+        const drift=P.align*(1-v)*Math.min(cw,ch)*0.5;
+        ox=gx*drift;oy=gy*drift; // positive = uphill = toward peak
+      }
+
+      const cx=(pad+c*cw+ox).toFixed(2),cy=(pad+r*ch+oy).toFixed(2);
       const r2=rad.toFixed(2);
       if(P.shape==='circle'){
-        shapes+=`<circle cx="${x}" cy="${y}" r="${r2}"/>`;
+        shapes+=`<circle cx="${cx}" cy="${cy}" r="${r2}"/>`;
       } else if(P.shape==='square'){
-        const rx=(rad*.26).toFixed(2);
-        const x0=(pad+c*cw-rad).toFixed(2),y0=(pad+r*ch-rad).toFixed(2),w=(rad*2).toFixed(2);
-        shapes+=`<rect x="${x0}" y="${y0}" width="${w}" height="${w}" rx="${rx}"/>`;
+        const rxr=(rad*.26).toFixed(2);
+        const x0=(pad+c*cw+ox-rad).toFixed(2),y0=(pad+r*ch+oy-rad).toFixed(2),w=(rad*2).toFixed(2);
+        shapes+=`<rect x="${x0}" y="${y0}" width="${w}" height="${w}" rx="${rxr}"/>`;
       } else {
-        const cx=pad+c*cw,cy=pad+r*ch;
-        shapes+=`<polygon points="${cx.toFixed(2)},${(cy-rad).toFixed(2)} ${(cx+rad).toFixed(2)},${cy.toFixed(2)} ${cx.toFixed(2)},${(cy+rad).toFixed(2)} ${(cx-rad).toFixed(2)},${cy.toFixed(2)}"/>`;
+        shapes+=`<polygon points="${cx},${(pad+r*ch+oy-rad).toFixed(2)} ${(pad+c*cw+ox+rad).toFixed(2)},${cy} ${cx},${(pad+r*ch+oy+rad).toFixed(2)} ${(pad+c*cw+ox-rad).toFixed(2)},${cy}"/>`;
       }
     }
   }
@@ -316,7 +357,7 @@ function render(){
   const wrap=$('canvas-wrap');
   wrap.innerHTML=buildSVG(S,animT);
   wrap.style.maxWidth=S+'px';
-  $('hud-l').textContent=`${P.cols}×${P.rows} · ${P.field.toUpperCase()} · SP${P.blur} FE${P.sharp} TH${P.thresh.toFixed(2)}`;
+  $('hud-l').textContent=`${P.cols}×${P.rows} · ${P.field.toUpperCase()} · SP${(+P.blur).toFixed(1)} TH${P.thresh.toFixed(2)}`;
 }
 
 function setShape(s){
@@ -343,9 +384,9 @@ function syncDOM(){
   $('sl-cols').value=P.cols; $('v-cols').textContent=P.cols;
   $('sl-rows').value=P.rows; $('v-rows').textContent=P.rows;
   $('sl-gap').value=P.gap||0; $('v-gap').textContent=(P.gap||0).toFixed(2);
-  $('sl-blur').value=P.blur; $('v-blur').textContent=P.blur.toFixed(1);
-  $('sl-sharp').value=P.sharp; $('v-sharp').textContent=P.sharp;
-  $('sl-thresh').value=P.thresh; $('v-thresh').textContent=P.thresh.toFixed(2);
+  $('sl-align').value=P.align||0; $('v-align').textContent=(P.align||0).toFixed(2);
+  $('sl-blur').value=P.blur; $('v-blur').textContent=(+P.blur).toFixed(1);
+  $('sl-thresh').value=P.thresh; $('v-thresh').textContent=(+P.thresh).toFixed(2);
   $('sl-min').value=P.minSz; $('v-min').textContent=P.minSz.toFixed(2);
   $('sl-max').value=P.maxSz; $('v-max').textContent=P.maxSz.toFixed(2);
   $('inp-fg').value=P.fg; $('hex-fg').textContent=P.fg;
@@ -355,7 +396,6 @@ function syncDOM(){
   $('btn-inv').classList.toggle('on',P.inv);
   $('btn-inv').textContent=P.inv?'◈ INVERTED':'◇ INVERT';
 }
-const DEFAULTS={shape:'circle',cols:9,rows:9,field:'arch',blur:10,sharp:38,thresh:.42,minSz:0,maxSz:.90,gap:0,fg:'#0f0f0f',bg:'#d2d2d2',inv:false};
 // Structure keys: loaded from preset. Style keys: preserved from current session.
 const STRUCTURE_KEYS=['shape','cols','rows','field','inv'];
 const STYLE_KEYS=['blur','sharp','thresh','minSz','maxSz','gap','fg','bg'];
@@ -371,10 +411,33 @@ function resetDefaults(){
   Object.assign(P,DEFAULTS);
   syncDOM();
   render();
-  // flash reset btn
   const rb=$('btn-reset');
-  rb.textContent='✓ RESET';rb.style.color='#f88';rb.style.borderColor='#622';
-  setTimeout(()=>{rb.textContent='↺ RESET';rb.style.color='';rb.style.borderColor='';},700);
+  rb.textContent='✓';rb.style.color='#f88';rb.style.borderColor='#622';
+  setTimeout(()=>{rb.textContent='↺ RST';rb.style.color='';rb.style.borderColor='';},700);
+}
+
+function randomize(){
+  const fieldKeys=Object.keys(FN);
+  const shapes=['circle','square','diamond'];
+  const rnd=(a,b)=>+(a+(b-a)*Math.random()).toFixed(2);
+  const rndInt=(a,b)=>Math.floor(a+(b-a+1)*Math.random());
+  P.field=fieldKeys[rndInt(0,fieldKeys.length-1)];
+  P.shape=shapes[rndInt(0,2)];
+  const g=rndInt(5,13);
+  if(gridLocked){P.cols=g;P.rows=g;}
+  else{P.cols=rndInt(5,14);P.rows=rndInt(5,14);}
+  P.blur=rnd(3,22);
+  P.thresh=rnd(0.25,0.65);
+  P.minSz=rnd(0,0.5);
+  P.maxSz=rnd(0.6,1.2);
+  P.gap=rnd(0,0.4);
+  P.align=rnd(0,0.85);
+  P.inv=Math.random()>.7;
+  syncDOM();
+  render();
+  const rb=$('btn-rand');
+  rb.textContent='✓';rb.style.color='#8f8';rb.style.borderColor='#384';
+  setTimeout(()=>{rb.textContent='? RAND';rb.style.color='';rb.style.borderColor='';},600);
 }
 
 /* ── PRESET SAVE / LOAD ──────────────────────────────────────────────────── */
@@ -427,7 +490,7 @@ FACTORY.forEach(p=>{
 const fgrid=$('field-grid');
 Object.keys(FN).forEach(key=>{
   const b=document.createElement('button');
-  b.className='field-btn'+(key==='arch'?' on':'');
+  b.className='field-btn';
   b.dataset.f=key;b.textContent=FL[key];
   b.onclick=()=>{P.field=key;document.querySelectorAll('.field-btn').forEach(x=>x.classList.remove('on'));b.classList.add('on');render()};
   fgrid.appendChild(b);
@@ -444,8 +507,7 @@ function exportSVG(){
 
 /* ── INIT ────────────────────────────────────────────────────────────────── */
 renderPresetList();
-// set initial lock state visual
-toggleLock(); toggleLock(); // locked by default — just style it
+syncDOM(); // set all sliders/buttons from P default state
 $('btn-lock').style.color='#aaa'; $('btn-lock').style.borderColor='#555';
 window.addEventListener('resize',()=>render());
 render();
