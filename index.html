@@ -4,22 +4,25 @@
   <meta charset="UTF-8" />
   <meta name="viewport" content="width=device-width, initial-scale=1.0" />
   <title>CC-TY — Visual Coding Tools</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
   <style>
     :root {
-      --bg: #0a0d12;
-      --bg-soft: rgba(255, 255, 255, 0.04);
-      --panel: rgba(255, 255, 255, 0.06);
-      --panel-hover: rgba(255, 255, 255, 0.1);
-      --stroke: rgba(255, 255, 255, 0.1);
-      --stroke-strong: rgba(255, 255, 255, 0.16);
-      --text: #f4f7fb;
-      --text-soft: rgba(244, 247, 251, 0.68);
-      --glow: rgba(120, 180, 255, 0.18);
+      --bg: #f3f3f3;
+      --panel: #ffffff;
+      --panel-hover: #f7f7f7;
+      --stroke: #d9d9d9;
+      --stroke-strong: #bdbdbd;
+      --text: #111111;
+      --text-soft: #666666;
       --radius-xl: 28px;
       --radius-lg: 22px;
       --radius-md: 18px;
-      --shadow: 0 10px 40px rgba(0, 0, 0, 0.35);
-      --max-width: 1400px;
+      --shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+      --max-width: 1440px;
     }
 
     * {
@@ -33,69 +36,41 @@
     body {
       margin: 0;
       min-height: 100vh;
-      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "SF Pro Display", "Segoe UI", sans-serif;
+      font-family: "Roboto Mono", monospace;
+      background: var(--bg);
       color: var(--text);
-      background:
-        radial-gradient(circle at top left, rgba(76, 120, 255, 0.14), transparent 28%),
-        radial-gradient(circle at top right, rgba(130, 255, 233, 0.08), transparent 24%),
-        linear-gradient(180deg, #0a0d12 0%, #090b10 100%);
-      letter-spacing: -0.02em;
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
     }
 
     .shell {
       width: min(var(--max-width), calc(100% - 40px));
       margin: 0 auto;
-      padding: 32px 0 56px;
+      padding: 28px 0 56px;
     }
 
     .hero {
-      position: relative;
-      overflow: hidden;
-      margin-bottom: 28px;
-      padding: 28px;
+      margin-bottom: 24px;
+      padding: 24px 28px;
       border: 1px solid var(--stroke);
       border-radius: var(--radius-xl);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.06), rgba(255,255,255,0.03)),
-        rgba(255,255,255,0.02);
-      backdrop-filter: blur(16px);
+      background: var(--panel);
       box-shadow: var(--shadow);
     }
 
-    .hero::after {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        linear-gradient(135deg, transparent 0%, rgba(255,255,255,0.03) 50%, transparent 100%);
-      pointer-events: none;
-    }
-
     .eyebrow {
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 10px 14px;
+      display: inline-block;
+      padding: 8px 12px;
       border: 1px solid var(--stroke);
       border-radius: 999px;
-      background: rgba(255,255,255,0.04);
       color: var(--text-soft);
       font-size: 12px;
-      text-transform: uppercase;
-      letter-spacing: 0.12em;
-    }
-
-    .dot {
-      width: 8px;
-      height: 8px;
-      border-radius: 999px;
-      background: #9fd3ff;
-      box-shadow: 0 0 18px #9fd3ff;
+      line-height: 1;
     }
 
     h1 {
-      margin: 18px 0 10px;
-      font-size: clamp(2rem, 5vw, 4.6rem);
+      margin: 16px 0 10px;
+      font-size: clamp(2rem, 5vw, 4rem);
       line-height: 0.95;
       font-weight: 700;
     }
@@ -104,8 +79,8 @@
       max-width: 760px;
       margin: 0;
       color: var(--text-soft);
-      font-size: clamp(1rem, 1.6vw, 1.1rem);
-      line-height: 1.6;
+      font-size: 14px;
+      line-height: 1.7;
     }
 
     .gallery {
@@ -115,49 +90,32 @@
     }
 
     .tool-card {
-      position: relative;
       display: flex;
       flex-direction: column;
       grid-column: span 4;
-      min-height: 320px;
       overflow: hidden;
       border: 1px solid var(--stroke);
       border-radius: var(--radius-lg);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.05), rgba(255,255,255,0.025));
+      background: var(--panel);
       box-shadow: var(--shadow);
       text-decoration: none;
       color: inherit;
-      transition: transform 180ms ease, border-color 180ms ease, background 180ms ease, box-shadow 180ms ease;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
     }
 
     .tool-card:hover {
-      transform: translateY(-4px);
+      transform: translateY(-3px);
       border-color: var(--stroke-strong);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.07), rgba(255,255,255,0.04));
-      box-shadow: 0 18px 55px rgba(0,0,0,0.42), 0 0 0 1px rgba(159, 211, 255, 0.08);
-    }
-
-    .tool-card::before {
-      content: "";
-      position: absolute;
-      inset: 0;
-      background:
-        radial-gradient(circle at top right, var(--glow), transparent 26%);
-      pointer-events: none;
+      background: var(--panel-hover);
     }
 
     .thumb-wrap {
-      position: relative;
       aspect-ratio: 16 / 10;
       margin: 14px 14px 0;
       overflow: hidden;
+      border: 1px solid var(--stroke);
       border-radius: var(--radius-md);
-      border: 1px solid rgba(255,255,255,0.08);
-      background:
-        linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.02)),
-        #0f1319;
+      background: #ececec;
     }
 
     .thumb-wrap img {
@@ -165,11 +123,6 @@
       height: 100%;
       object-fit: cover;
       display: block;
-      transition: transform 220ms ease;
-    }
-
-    .tool-card:hover .thumb-wrap img {
-      transform: scale(1.03);
     }
 
     .thumb-fallback {
@@ -177,42 +130,42 @@
       height: 100%;
       display: grid;
       place-items: center;
-      color: rgba(244, 247, 251, 0.4);
-      font-size: 14px;
-      letter-spacing: 0.08em;
-      text-transform: uppercase;
-      background:
-        linear-gradient(135deg, rgba(255,255,255,0.03), rgba(255,255,255,0.01));
+      color: var(--text-soft);
+      font-size: 12px;
+      padding: 16px;
+      text-align: center;
     }
 
     .card-body {
-      display: flex;
-      flex-direction: column;
-      gap: 10px;
-      padding: 18px 18px 20px;
+      padding: 16px 18px 18px;
     }
 
     .tool-name {
       margin: 0;
-      font-size: 1.05rem;
-      font-weight: 600;
-      line-height: 1.25;
-    }
-
-    .tool-meta {
-      color: var(--text-soft);
-      font-size: 0.92rem;
+      font-size: 14px;
       line-height: 1.5;
+      font-weight: 500;
+      color: var(--text);
     }
 
     .footer-note {
-      margin-top: 26px;
-      padding: 16px 18px;
+      margin-top: 22px;
+      padding: 14px 16px;
       border: 1px solid var(--stroke);
       border-radius: 18px;
-      background: rgba(255,255,255,0.03);
+      background: var(--panel);
       color: var(--text-soft);
-      font-size: 0.92rem;
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    code {
+      font-family: inherit;
+      font-size: inherit;
+      background: #efefef;
+      padding: 2px 6px;
+      border-radius: 8px;
+      color: var(--text);
     }
 
     @media (max-width: 1100px) {
@@ -229,7 +182,6 @@
 
       .hero {
         padding: 20px;
-        border-radius: 24px;
       }
 
       .gallery {
@@ -238,7 +190,6 @@
 
       .tool-card {
         grid-column: span 12;
-        min-height: unset;
       }
 
       .thumb-wrap {
@@ -246,7 +197,7 @@
       }
 
       .card-body {
-        padding: 16px;
+        padding: 14px 16px 16px;
       }
     }
   </style>
@@ -254,13 +205,10 @@
 <body>
   <main class="shell">
     <section class="hero">
-      <div class="eyebrow">
-        <span class="dot"></span>
-        Visual Coding Tools
-      </div>
+      <div class="eyebrow">Visual Coding Tools</div>
       <h1>CC-TY</h1>
       <p class="lead">
-        A curated library of visual coding tools, generators, scripts, and experiments.
+        A curated library of generators, scripts, image tools, typography tools, and visual experiments.
       </p>
     </section>
 
@@ -272,11 +220,10 @@
             alt="Preview of Geometric Emblem Generator"
             onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
           />
-          <div class="thumb-fallback" style="display:none;">No Preview</div>
+          <div class="thumb-fallback" style="display:none;">No Preview Yet</div>
         </div>
         <div class="card-body">
           <h2 class="tool-name">Geometric Emblem Generator</h2>
-          <div class="tool-meta">Generators</div>
         </div>
       </a>
 
@@ -287,11 +234,10 @@
             alt="Preview of BCA Halftone Lines Image"
             onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
           />
-          <div class="thumb-fallback" style="display:none;">No Preview</div>
+          <div class="thumb-fallback" style="display:none;">No Preview Yet</div>
         </div>
         <div class="card-body">
           <h2 class="tool-name">BCA Halftone Lines Image</h2>
-          <div class="tool-meta">Image</div>
         </div>
       </a>
 
@@ -302,11 +248,10 @@
             alt="Preview of Squircles for Illustrator"
             onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
           />
-          <div class="thumb-fallback" style="display:none;">No Preview</div>
+          <div class="thumb-fallback" style="display:none;">No Preview Yet</div>
         </div>
         <div class="card-body">
           <h2 class="tool-name">Squircles for Illustrator</h2>
-          <div class="tool-meta">Scripts</div>
         </div>
       </a>
 
@@ -317,11 +262,10 @@
             alt="Preview of Experimental Type Tool"
             onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
           />
-          <div class="thumb-fallback" style="display:none;">No Preview</div>
+          <div class="thumb-fallback" style="display:none;">No Preview Yet</div>
         </div>
         <div class="card-body">
           <h2 class="tool-name">Experimental Type Tool</h2>
-          <div class="tool-meta">Typography</div>
         </div>
       </a>
 
@@ -332,17 +276,307 @@
             alt="Preview of BCA Halftone Lines Video"
             onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
           />
-          <div class="thumb-fallback" style="display:none;">No Preview</div>
+          <div class="thumb-fallback" style="display:none;">No Preview Yet</div>
         </div>
         <div class="card-body">
           <h2 class="tool-name">BCA Halftone Lines Video</h2>
-          <div class="tool-meta">Video</div>
         </div>
       </a>
     </section>
 
     <div class="footer-note">
-      Add a <code>preview.png</code> inside each tool folder to populate the gallery thumbnails automatically.
+      Add a file named <code>preview.png</code> inside each tool folder to show thumbnails in the gallery.
+    </div>
+  </main>
+</body>
+</html><!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>CC-TY — Visual Coding Tools</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Roboto+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+  <style>
+    :root {
+      --bg: #f3f3f3;
+      --panel: #ffffff;
+      --panel-hover: #f7f7f7;
+      --stroke: #d9d9d9;
+      --stroke-strong: #bdbdbd;
+      --text: #111111;
+      --text-soft: #666666;
+      --radius-xl: 28px;
+      --radius-lg: 22px;
+      --radius-md: 18px;
+      --shadow: 0 8px 30px rgba(0, 0, 0, 0.06);
+      --max-width: 1440px;
+    }
+
+    * {
+      box-sizing: border-box;
+    }
+
+    html {
+      scroll-behavior: smooth;
+    }
+
+    body {
+      margin: 0;
+      min-height: 100vh;
+      font-family: "Roboto Mono", monospace;
+      background: var(--bg);
+      color: var(--text);
+      text-transform: uppercase;
+      letter-spacing: 0.04em;
+    }
+
+    .shell {
+      width: min(var(--max-width), calc(100% - 40px));
+      margin: 0 auto;
+      padding: 28px 0 56px;
+    }
+
+    .hero {
+      margin-bottom: 24px;
+      padding: 24px 28px;
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius-xl);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+    }
+
+    .eyebrow {
+      display: inline-block;
+      padding: 8px 12px;
+      border: 1px solid var(--stroke);
+      border-radius: 999px;
+      color: var(--text-soft);
+      font-size: 12px;
+      line-height: 1;
+    }
+
+    h1 {
+      margin: 16px 0 10px;
+      font-size: clamp(2rem, 5vw, 4rem);
+      line-height: 0.95;
+      font-weight: 700;
+    }
+
+    .lead {
+      max-width: 760px;
+      margin: 0;
+      color: var(--text-soft);
+      font-size: 14px;
+      line-height: 1.7;
+    }
+
+    .gallery {
+      display: grid;
+      grid-template-columns: repeat(12, 1fr);
+      gap: 18px;
+    }
+
+    .tool-card {
+      display: flex;
+      flex-direction: column;
+      grid-column: span 4;
+      overflow: hidden;
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius-lg);
+      background: var(--panel);
+      box-shadow: var(--shadow);
+      text-decoration: none;
+      color: inherit;
+      transition: transform 160ms ease, border-color 160ms ease, background 160ms ease;
+    }
+
+    .tool-card:hover {
+      transform: translateY(-3px);
+      border-color: var(--stroke-strong);
+      background: var(--panel-hover);
+    }
+
+    .thumb-wrap {
+      aspect-ratio: 16 / 10;
+      margin: 14px 14px 0;
+      overflow: hidden;
+      border: 1px solid var(--stroke);
+      border-radius: var(--radius-md);
+      background: #ececec;
+    }
+
+    .thumb-wrap img {
+      width: 100%;
+      height: 100%;
+      object-fit: cover;
+      display: block;
+    }
+
+    .thumb-fallback {
+      width: 100%;
+      height: 100%;
+      display: grid;
+      place-items: center;
+      color: var(--text-soft);
+      font-size: 12px;
+      padding: 16px;
+      text-align: center;
+    }
+
+    .card-body {
+      padding: 16px 18px 18px;
+    }
+
+    .tool-name {
+      margin: 0;
+      font-size: 14px;
+      line-height: 1.5;
+      font-weight: 500;
+      color: var(--text);
+    }
+
+    .footer-note {
+      margin-top: 22px;
+      padding: 14px 16px;
+      border: 1px solid var(--stroke);
+      border-radius: 18px;
+      background: var(--panel);
+      color: var(--text-soft);
+      font-size: 12px;
+      line-height: 1.7;
+    }
+
+    code {
+      font-family: inherit;
+      font-size: inherit;
+      background: #efefef;
+      padding: 2px 6px;
+      border-radius: 8px;
+      color: var(--text);
+    }
+
+    @media (max-width: 1100px) {
+      .tool-card {
+        grid-column: span 6;
+      }
+    }
+
+    @media (max-width: 700px) {
+      .shell {
+        width: min(var(--max-width), calc(100% - 24px));
+        padding-top: 18px;
+      }
+
+      .hero {
+        padding: 20px;
+      }
+
+      .gallery {
+        gap: 14px;
+      }
+
+      .tool-card {
+        grid-column: span 12;
+      }
+
+      .thumb-wrap {
+        margin: 12px 12px 0;
+      }
+
+      .card-body {
+        padding: 14px 16px 16px;
+      }
+    }
+  </style>
+</head>
+<body>
+  <main class="shell">
+    <section class="hero">
+      <div class="eyebrow">Visual Coding Tools</div>
+      <h1>CC-TY</h1>
+      <p class="lead">
+        A curated library of generators, scripts, image tools, typography tools, and visual experiments.
+      </p>
+    </section>
+
+    <section class="gallery">
+      <a class="tool-card" href="./tools/generators/geometric-emblem-generator/">
+        <div class="thumb-wrap">
+          <img
+            src="./tools/generators/geometric-emblem-generator/preview.png"
+            alt="Preview of Geometric Emblem Generator"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
+          />
+          <div class="thumb-fallback" style="display:none;">No Preview Yet</div>
+        </div>
+        <div class="card-body">
+          <h2 class="tool-name">Geometric Emblem Generator</h2>
+        </div>
+      </a>
+
+      <a class="tool-card" href="./tools/image/BCA-halftone-lines-image/">
+        <div class="thumb-wrap">
+          <img
+            src="./tools/image/BCA-halftone-lines-image/preview.png"
+            alt="Preview of BCA Halftone Lines Image"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
+          />
+          <div class="thumb-fallback" style="display:none;">No Preview Yet</div>
+        </div>
+        <div class="card-body">
+          <h2 class="tool-name">BCA Halftone Lines Image</h2>
+        </div>
+      </a>
+
+      <a class="tool-card" href="./tools/scripts/squircles-for-illustrator/">
+        <div class="thumb-wrap">
+          <img
+            src="./tools/scripts/squircles-for-illustrator/preview.png"
+            alt="Preview of Squircles for Illustrator"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
+          />
+          <div class="thumb-fallback" style="display:none;">No Preview Yet</div>
+        </div>
+        <div class="card-body">
+          <h2 class="tool-name">Squircles for Illustrator</h2>
+        </div>
+      </a>
+
+      <a class="tool-card" href="./tools/typography/experimental-type-tool/">
+        <div class="thumb-wrap">
+          <img
+            src="./tools/typography/experimental-type-tool/preview.png"
+            alt="Preview of Experimental Type Tool"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
+          />
+          <div class="thumb-fallback" style="display:none;">No Preview Yet</div>
+        </div>
+        <div class="card-body">
+          <h2 class="tool-name">Experimental Type Tool</h2>
+        </div>
+      </a>
+
+      <a class="tool-card" href="./tools/video/BCA-halftone-lines-video/">
+        <div class="thumb-wrap">
+          <img
+            src="./tools/video/BCA-halftone-lines-video/preview.png"
+            alt="Preview of BCA Halftone Lines Video"
+            onerror="this.style.display='none'; this.nextElementSibling.style.display='grid';"
+          />
+          <div class="thumb-fallback" style="display:none;">No Preview Yet</div>
+        </div>
+        <div class="card-body">
+          <h2 class="tool-name">BCA Halftone Lines Video</h2>
+        </div>
+      </a>
+    </section>
+
+    <div class="footer-note">
+      Add a file named <code>preview.png</code> inside each tool folder to show thumbnails in the gallery.
     </div>
   </main>
 </body>
