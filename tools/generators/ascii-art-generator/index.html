@@ -1,0 +1,436 @@
+
+<link href="https://cdn.jsdelivr.net/npm/@fontsource/roboto-mono@5/400.css" rel="stylesheet">
+<style>
+*{box-sizing:border-box;margin:0;padding:0;}
+.app{font-family:'Roboto Mono',monospace;background:#111;border:1px solid #222;border-radius:6px;overflow:hidden;display:flex;flex-direction:column;}
+.hdr{display:flex;align-items:center;height:40px;padding:0 14px;border-bottom:1px solid #1E1E1E;background:#0D0D0D;gap:12px;}
+.hdr-mark{width:3px;height:18px;background:#FF1A1A;flex-shrink:0;}
+.hdr-title{font-size:8px;letter-spacing:.24em;color:#FF1A1A;flex:1;}
+.hbtn{font-family:'Roboto Mono',monospace;font-size:8px;letter-spacing:.1em;padding:4px 10px;border:1px solid #2A2A2A;background:none;color:#444;cursor:pointer;transition:all .12s;}
+.hbtn:hover{border-color:#FF1A1A;color:#FF1A1A;}
+.hbtn.ok{background:#FF1A1A;color:#000;border-color:#FF1A1A;}
+.tbar{display:flex;align-items:stretch;overflow-x:auto;scrollbar-width:none;border-bottom:1px solid #1A1A1A;background:#0A0A0A;height:32px;}
+.tbar::-webkit-scrollbar{display:none;}
+.tcat{font-size:7px;letter-spacing:.15em;color:#252525;padding:0 8px;display:flex;align-items:center;border-right:1px solid #1A1A1A;white-space:nowrap;flex-shrink:0;}
+.tbtn{font-family:'Roboto Mono',monospace;font-size:8px;letter-spacing:.06em;padding:0 10px;border:none;border-bottom:2px solid transparent;background:none;color:#333;cursor:pointer;white-space:nowrap;flex-shrink:0;transition:color .1s,border-color .1s;height:100%;}
+.tbtn:hover:not(.on){color:#777;border-bottom-color:#2A2A2A;}
+.tbtn.on{color:#FF1A1A;border-bottom-color:#FF1A1A;}
+.canvas{min-height:240px;display:flex;align-items:center;justify-content:center;padding:36px 28px;transition:background .2s;}
+pre.art{font-family:'Roboto Mono','Courier New',monospace;font-weight:400;line-height:1.28;white-space:pre;}
+.ctrl{border-top:1px solid #1A1A1A;padding:14px 16px;background:#0D0D0D;display:grid;grid-template-columns:1fr 1fr 1fr 1fr;gap:11px 22px;}
+.ci{display:flex;flex-direction:column;gap:5px;}
+.ci.s2{grid-column:span 2;}
+.lbl{font-size:7px;letter-spacing:.18em;color:#2E2E2E;}
+input[type=text]{font-family:'Roboto Mono',monospace;font-size:10px;padding:5px 7px;border:1px solid #1E1E1E;background:#141414;color:#888;width:100%;outline:none;border-radius:0;}
+input[type=text]:focus{border-color:#FF1A1A;color:#CCC;}
+.slrow{display:flex;gap:8px;align-items:center;}
+.slrow input[type=range]{flex:1;accent-color:#FF1A1A;height:12px;}
+.slv{font-size:8px;color:#2E2E2E;min-width:28px;text-align:right;font-family:'Roboto Mono',monospace;}
+.crow{display:flex;gap:4px;align-items:center;}
+.csw{width:14px;height:14px;cursor:pointer;border:1px solid #252525;position:relative;overflow:hidden;flex-shrink:0;}
+.csw input[type=color]{position:absolute;inset:-4px;width:140%;height:140%;opacity:0;cursor:pointer;}
+.chex{font-size:8px;color:#2A2A2A;margin:0 3px;min-width:50px;font-family:'Roboto Mono',monospace;}
+.cdot{width:11px;height:11px;cursor:pointer;border:1px solid transparent;flex-shrink:0;transition:transform .1s;}
+.cdot:hover{transform:scale(1.3);}
+.cdot.on{border:1px solid #FF1A1A;}
+</style>
+
+<div class="app">
+  <div class="hdr">
+    <div class="hdr-mark"></div>
+    <span class="hdr-title">Boothclub ASCII Generator</span>
+    <button class="hbtn" id="invBtn">INVERT</button>
+    <button class="hbtn" id="cpyBtn">COPY</button>
+    <button class="hbtn" id="svgBtn">SVG</button>
+  </div>
+  <div class="tbar" id="tbar"></div>
+  <div class="canvas" id="canvas"><pre class="art" id="art"></pre></div>
+  <div class="ctrl">
+    <div class="ci s2"><span class="lbl">TEXT</span><input type="text" id="t1" placeholder="BOOTHCLUB"/></div>
+    <div class="ci s2"><span class="lbl">SUBTEXT / COUNT</span><input type="text" id="t2" placeholder="AMSTERDAM"/></div>
+    <div class="ci"><span class="lbl">SIZE</span><div class="slrow"><input type="range" id="szR" min="9" max="24" value="13" step="1"/><span class="slv" id="szV">13px</span></div></div>
+    <div class="ci"><span class="lbl">CHAR SPACING</span><div class="slrow"><input type="range" id="spR" min="0" max="12" value="0" step=".5"/><span class="slv" id="spV">0px</span></div></div>
+    <div class="ci s2">
+      <span class="lbl">BACKGROUND</span>
+      <div class="crow"><div class="csw" id="bgSw"><input type="color" id="bgC" value="#000000"/></div><span class="chex" id="bgH">#000000</span><div id="bgD" style="display:flex;gap:3px;"></div></div>
+    </div>
+    <div class="ci s2">
+      <span class="lbl">ART COLOR</span>
+      <div class="crow"><div class="csw" id="artSw"><input type="color" id="artC" value="#FF1A1A"/></div><span class="chex" id="artH">#FF1A1A</span><div id="artD" style="display:flex;gap:3px;"></div></div>
+    </div>
+  </div>
+</div>
+
+<script>
+const c=(s,w)=>{s=s||'';const p=Math.max(0,w-s.length);return' '.repeat(Math.floor(p/2))+s+' '.repeat(Math.ceil(p/2));};
+
+const CATS=[
+  {label:'PHOTO', keys:['camera','film','polaroid','roll']},
+  {label:'LOVE',  keys:['heart_dash','heart_block','kiss']},
+  {label:'ENERGY',keys:['flash','bolt']},
+  {label:'MOOD',  keys:['smiley','wink','fun']},
+  {label:'BRAND', keys:['stamp','frame','say','poses','url','custom']},
+];
+
+const T={
+  camera:{l:'CAMERA',g:(a)=>{
+    const n=(a||'BOOTHCLUB').toUpperCase();
+    return[
+      '      /--/[]\\--\\      ',
+      '    /--/[___]\\--\\     ',
+      '   /-/[_______]\\-\\    ',
+      '   |             |    ',
+      '   |  (( --- ))  |    ',
+      '   |   -------   |    ',
+      '   |             |    ',
+      '   |-------------|    ',
+      '       '+n,
+    ].join('\n');
+  }},
+
+  film:{l:'FILM',g:()=>[
+    '[=][=][-----------][=][=]',
+    '[=][=][           ][=][=]',
+    '[=][=][ [-------] ][=][=]',
+    '[=][=][ [  ---  ] ][=][=]',
+    '[=][=][ [-------] ][=][=]',
+    '[=][=][           ][=][=]',
+    '[=][=][-----------][=][=]',
+    '[=][=][           ][=][=]',
+    '[=][=][ [-------] ][=][=]',
+    '[=][=][ [  ---  ] ][=][=]',
+    '[=][=][ [-------] ][=][=]',
+    '[=][=][           ][=][=]',
+    '[=][=][-----------][=][=]',
+  ].join('\n')},
+
+  polaroid:{l:'POLAROID',g:(a)=>{
+    const n=(a||'BOOTHCLUB').toUpperCase();
+    return[
+      '/------------------\\',
+      '|                  |',
+      '| [              ] |',
+      '| [  (( --- ))   ] |',
+      '| [   ---------  ] |',
+      '| [              ] |',
+      '| [--------------] |',
+      '|                  |',
+      '|   '+c(n,14)+'   |',
+      '\\------------------/',
+    ].join('\n');
+  }},
+
+  roll:{l:'ROLL',g:()=>[
+    '    (===========)    ',
+    '   ( (---------) )   ',
+    '  ( ( [-------] ) )  ',
+    ' ( ( ( [ --- ] ) ) ) ',
+    '  ( ( [-------] ) )  ',
+    '   ( (---------) )   ',
+    '    (===========)    ',
+  ].join('\n')},
+
+  heart_dash:{l:'--- ♥',g:()=>[
+    '   -----   -----   ',
+    '  -------+-------  ',
+    ' --------- -------- ',
+    '-----------------  ',
+    ' ---------------   ',
+    '  -------------    ',
+    '   -----------     ',
+    '    ---------      ',
+    '     -------       ',
+    '      -----        ',
+    '       ---         ',
+    '        -          ',
+  ].join('\n')},
+
+  heart_block:{l:'[--] ♥',g:()=>[
+    '  [--][--]   [--][--]  ',
+    ' [--][--][--][--][--]  ',
+    '[--][--][--][--][--][--]',
+    '[--][--][--][--][--][--]',
+    ' [--][--][--][--][--]  ',
+    '   [--][--][--][--]    ',
+    '     [--][--][--]      ',
+    '       [--][--]        ',
+    '         [--]          ',
+  ].join('\n')},
+
+  kiss:{l:'KISS',g:(a,b)=>{
+    const sub=(b||'X   X   X').toUpperCase();
+    return[
+      '   /--\\        /--\\   ',
+      '  /    \\      /    \\  ',
+      ' /      \\    /      \\ ',
+      '/        \\  /        \\',
+      '\\                    /',
+      ' \\    ----------    / ',
+      '  \\  ------------  /  ',
+      '   \\--------------/   ',
+      '        '+c(sub,12),
+    ].join('\n');
+  }},
+
+  flash:{l:'FLASH',g:()=>[
+    '       \\    |    /       ',
+    '    ---\\    |    /---    ',
+    '   ----\\\\   |   //----   ',
+    '  ------\\\\ | //------  ',
+    '---------\\-|-/---------',
+    '  ------// | \\\\------  ',
+    '   ----//   |   \\\\----   ',
+    '    ---/    |    \\---    ',
+    '       /    |    \\       ',
+  ].join('\n')},
+
+  bolt:{l:'BOLT',g:()=>[
+    '    /----------\\  ',
+    '    |    /-----/  ',
+    '    |   /-----/   ',
+    '    |  /-----/    ',
+    '    | /-----/     ',
+    '  /-----/         ',
+    ' /-----/          ',
+    '\\-----\\           ',
+    ' \\-----\\          ',
+    '  \\-----\\         ',
+    '   \\-----\\        ',
+    '    \\----/         ',
+  ].join('\n')},
+
+  smiley:{l:':-)',g:(a)=>{
+    const n=Math.min(Math.max(parseInt(a)||5,1),9);
+    return'( '+Array(n).fill(':-)').join(' ')+' )';
+  }},
+
+  wink:{l:'WINK',g:()=>[
+    '/-------------------\\',
+    '|                   |',
+    '|    ;-)      :*    |',
+    '|   (  wink!  )     |',
+    '|                   |',
+    '\\-------------------/',
+  ].join('\n')},
+
+  fun:{l:'FUN',g:(a)=>{
+    const txt=(a||'FUN!').toUpperCase();
+    const inner='[  '+txt+'  ]';
+    const r1='- \\ / - \\ / - \\ / -';
+    const r2='\\ - / \\ - / \\ - / \\';
+    const r3='/ \\ - / \\ - / \\ - /';
+    return[r1,r2,r3,c(inner,r1.length),r1,r2,r3].join('\n');
+  }},
+
+  stamp:{l:'STAMP',g:(a,b)=>{
+    const name=(a||'BOOTHCLUB').toUpperCase();
+    const inner=(b||':-)').toUpperCase();
+    const w=26;
+    let ring='';const seg=name+' - ';
+    while(ring.length<w)ring+=seg;
+    ring=ring.slice(0,w);
+    const rev=ring.split('').reverse().join('');
+    return[
+      ' '+ring+' ',
+      '/'+' '.repeat(w+2)+'\\',
+      '|  '+c(inner,w)+'  |',
+      '\\'+' '.repeat(w+2)+'/',
+      ' '+rev+' ',
+    ].join('\n');
+  }},
+
+  frame:{l:'FRAME',g:(a,b)=>{
+    const t=(a||'BOOTHCLUB').toUpperCase();
+    const s=(b||'AMSTERDAM').toUpperCase();
+    const iW=Math.max(t.length,s.length)+4;
+    const hW=iW+2;
+    const hbar='[--]'+'-'.repeat(Math.max(0,hW-8))+'[--]';
+    const p=str=>{const sp=Math.max(0,iW-str.length);return' '.repeat(Math.floor(sp/2))+str+' '.repeat(Math.ceil(sp/2));};
+    return[
+      '/'+hbar+'\\',
+      '| '+p(t)+' |',
+      '| '+'-'.repeat(iW)+' |',
+      '| '+p(s)+' |',
+      '\\'+hbar+'/',
+    ].join('\n');
+  }},
+
+  say:{l:'SAY',g:(a,b)=>{
+    const l1=(a||'SAY CHEESE!').toUpperCase();
+    const l2=(b||':-) :-) :-)').toUpperCase();
+    const w=Math.max(l1.length,l2.length)+4;
+    const p=s=>s+' '.repeat(w-s.length-1);
+    return[
+      '/'+'-'.repeat(w)+'\\',
+      '| '+p(l1)+' |',
+      '| '+p(l2)+' |',
+      '| '+' '.repeat(w-2)+' |',
+      '\\--\\'+' '.repeat(w-2)+'/',
+      '   \\'+ '-'.repeat(w-2)+'/',
+    ].join('\n');
+  }},
+
+  poses:{l:'POSES',g:(a)=>{
+    const raw=a||'WINK\nKISS\nPOSE';
+    const lines=raw.replace(/\\n/gi,'\n').split('\n');
+    const r=[];
+    lines.forEach((l,i)=>{r.push('  '+l.toUpperCase());if(i<lines.length-1)r.push('  ---');});
+    return r.join('\n');
+  }},
+
+  url:{l:'URL',g:(a)=>{
+    const txt=(a||'BOOTHCLUB.NL').toUpperCase();
+    const bar='='.repeat(txt.length+4);
+    return['['+bar+']','[  '+txt+'  ]','['+bar+']'].join('\n');
+  }},
+
+  custom:{l:'CUSTOM',g:(a,b)=>{
+    const m=(a||'YOUR TEXT').toUpperCase();
+    const s=b?b.toUpperCase():null;
+    const w=Math.max(m.length,s?s.length:0)+2;
+    const d='-'.repeat(w);
+    const p=str=>{const sp=w-str.length;const l=Math.floor(sp/2);return' '.repeat(l)+str+' '.repeat(sp-l);};
+    const lines=['/'+d+'\\','| '+p(m)+' |'];
+    if(s){lines.push('| '+d+' |');lines.push('| '+p(s)+' |');}
+    lines.push('\\'+d+'/');
+    return lines.join('\n');
+  }},
+};
+
+const BG_P=['#000000','#111111','#FFFFFF','#FF1A1A','#FFE600','#1A1A2E'];
+const ART_P=['#FF1A1A','#FFFFFF','#FFE600','#000000','#FF6600','#AAAAAA'];
+
+let S={tpl:'camera',t1:'',t2:'',bg:'#000000',art:'#FF1A1A',sz:13,sp:0};
+
+function getArt(){const tpl=T[S.tpl];return tpl?tpl.g(S.t1||null,S.t2||null):'';}
+
+function render(){
+  const el=document.getElementById('art');
+  const cv=document.getElementById('canvas');
+  el.style.fontSize=S.sz+'px';
+  el.style.letterSpacing=S.sp+'px';
+  el.style.color=S.art;
+  cv.style.background=S.bg;
+  el.textContent=getArt();
+}
+
+function buildTbar(){
+  const bar=document.getElementById('tbar');
+  CATS.forEach(cat=>{
+    const sep=document.createElement('div');
+    sep.className='tcat';
+    sep.textContent=cat.label;
+    bar.appendChild(sep);
+    cat.keys.forEach(k=>{
+      const btn=document.createElement('button');
+      btn.className='tbtn'+(k===S.tpl?' on':'');
+      btn.textContent=T[k].l;
+      btn.dataset.k=k;
+      btn.onclick=()=>{
+        S.tpl=k;
+        document.querySelectorAll('.tbtn').forEach(b=>b.classList.toggle('on',b.dataset.k===k));
+        render();
+      };
+      bar.appendChild(btn);
+    });
+  });
+}
+
+function buildColor(inputId,hexId,swId,dotsId,presets,key){
+  const input=document.getElementById(inputId);
+  const hexEl=document.getElementById(hexId);
+  const sw=document.getElementById(swId);
+  sw.style.background=input.value;
+  input.oninput=()=>{
+    sw.style.background=input.value;
+    hexEl.textContent=input.value;
+    S[key]=input.value;
+    render();
+    refreshDots(dotsId,presets,input.value);
+  };
+  const dots=document.getElementById(dotsId);
+  presets.forEach(col=>{
+    const d=document.createElement('div');
+    d.className='cdot'+(col===S[key]?' on':'');
+    d.style.background=col;
+    if(col==='#FFFFFF')d.style.outline='1px solid #333';
+    d.onclick=()=>{
+      input.value=col;
+      sw.style.background=col;
+      hexEl.textContent=col;
+      S[key]=col;
+      render();
+      refreshDots(dotsId,presets,col);
+    };
+    dots.appendChild(d);
+  });
+}
+
+function refreshDots(dotsId,presets,val){
+  document.querySelectorAll('#'+dotsId+' .cdot').forEach((d,i)=>{
+    d.classList.toggle('on',presets[i]===val);
+  });
+}
+
+buildTbar();
+buildColor('bgC','bgH','bgSw','bgD',BG_P,'bg');
+buildColor('artC','artH','artSw','artD',ART_P,'art');
+
+document.getElementById('t1').oninput=e=>{S.t1=e.target.value;render();};
+document.getElementById('t2').oninput=e=>{S.t2=e.target.value;render();};
+
+const szR=document.getElementById('szR');
+szR.oninput=e=>{S.sz=parseInt(e.target.value);document.getElementById('szV').textContent=S.sz+'px';render();};
+
+const spR=document.getElementById('spR');
+spR.oninput=e=>{S.sp=parseFloat(e.target.value);document.getElementById('spV').textContent=S.sp+'px';render();};
+
+document.getElementById('invBtn').onclick=()=>{
+  const tmp=S.bg;S.bg=S.art;S.art=tmp;
+  ['bgC','artC'].forEach((id,i)=>{
+    const v=i===0?S.bg:S.art;
+    document.getElementById(id).value=v;
+    document.getElementById(id==='bgC'?'bgH':'artH').textContent=v;
+    document.getElementById(id==='bgC'?'bgSw':'artSw').style.background=v;
+  });
+  refreshDots('bgD',BG_P,S.bg);
+  refreshDots('artD',ART_P,S.art);
+  render();
+};
+
+document.getElementById('cpyBtn').onclick=function(){
+  navigator.clipboard.writeText(getArt()).then(()=>{
+    this.textContent='COPIED!';this.classList.add('ok');
+    setTimeout(()=>{this.textContent='COPY';this.classList.remove('ok');},1400);
+  });
+};
+
+document.getElementById('svgBtn').onclick=()=>{
+  const art=getArt();
+  const lines=art.split('\n');
+  const fSize=S.sz;
+  const lSpacing=S.sp;
+  const charW=(fSize*0.601)+lSpacing;
+  const lineH=fSize*1.28;
+  const maxLen=Math.max(...lines.map(l=>l.length));
+  const px=24,py=24;
+  const W=Math.round(maxLen*charW+px*2);
+  const H=Math.round(lines.length*lineH+py*2);
+  const textLines=lines.map((l,i)=>{
+    const esc=l.replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+    return`<text x="${px}" y="${Math.round(py+(i+1)*lineH-lineH*.22)}">${esc}</text>`;
+  }).join('\n');
+  const svg=`<svg xmlns="http://www.w3.org/2000/svg" width="${W}" height="${H}" viewBox="0 0 ${W} ${H}">
+<rect width="${W}" height="${H}" fill="${S.bg}"/>
+<g font-family="'Roboto Mono','Courier New',monospace" font-size="${fSize}" fill="${S.art}" letter-spacing="${lSpacing}" xml:space="preserve" font-weight="400">
+${textLines}
+</g>
+</svg>`;
+  const url=URL.createObjectURL(new Blob([svg],{type:'image/svg+xml'}));
+  const a=document.createElement('a');
+  a.href=url;a.download='boothclub-ascii.svg';a.click();
+  URL.revokeObjectURL(url);
+};
+
+render();
+</script>
