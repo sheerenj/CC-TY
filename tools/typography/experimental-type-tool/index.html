@@ -7,7 +7,7 @@
 <link href="https://fonts.googleapis.com/css2?family=IBM+Plex+Mono:ital,wght@0,400;0,700;1,400&family=Bebas+Neue&family=Orbitron:wght@700&family=Major+Mono+Display&family=Syne+Mono&family=Aldrich&family=Rajdhani:wght@700&family=Saira+Condensed:wght@700&family=Black+Ops+One&family=Teko:wght@700&family=Share+Tech+Mono&family=Nova+Mono&display=swap" rel="stylesheet">
 <style>
 *,*::before,*::after{box-sizing:border-box;margin:0;padding:0}
-:root{--bg:#040404;--s1:#0b0b0b;--s2:#111;--b1:#1e1e1e;--b2:#2c2c2c;--b3:#444;--fg:#f0f0f0;--dim:#888;--acc:#fff;--mono:'IBM Plex Mono',monospace;}
+:root{--bg:#040404;--s1:#0b0b0b;--s2:#141414;--b1:#222;--b2:#333;--b3:#555;--fg:#f4f4f4;--dim:#aaa;--acc:#fff;--mono:'IBM Plex Mono',monospace;}
 html,body{height:100%;overflow:hidden}
 body{background:var(--bg);color:var(--fg);font-family:var(--mono);font-size:11px;display:flex;flex-direction:column}
 
@@ -25,7 +25,7 @@ header{height:32px;border-bottom:1px solid var(--b1);display:flex;align-items:ce
 /* SHARED LAYOUT */
 .tab-panel{display:none;flex:1;min-height:0}
 .tab-panel.on{display:flex}
-.sb{width:256px;min-width:256px;border-right:1px solid var(--b1);overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;}
+.sb{width:276px;min-width:276px;border-right:1px solid var(--b1);overflow-y:auto;overflow-x:hidden;display:flex;flex-direction:column;}
 .sb::-webkit-scrollbar{width:3px}.sb::-webkit-scrollbar-thumb{background:var(--b2)}
 .pnl{border-bottom:1px solid var(--b1);padding:9px 11px}
 .plbl{font-size:9px;letter-spacing:.25em;color:var(--dim);text-transform:uppercase;display:flex;align-items:center;gap:6px;margin-bottom:8px;}
@@ -45,6 +45,9 @@ header{height:32px;border-bottom:1px solid var(--b1);display:flex;align-items:ce
 .sr-h .v{font-size:9px;color:var(--fg);font-weight:700;min-width:40px;text-align:right}
 input[type=range]{-webkit-appearance:none;width:100%;height:1px;background:var(--b2);outline:none;cursor:pointer;}
 input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:8px;height:8px;background:var(--fg);cursor:pointer;border-radius:0;}
+.color-pick{width:28px;height:18px;border:1px solid var(--b2);padding:0;cursor:pointer;background:none;outline:none;flex-shrink:0;}
+.color-pick::-webkit-color-swatch-wrapper{padding:0;}
+.color-pick::-webkit-color-swatch{border:none;}
 
 /* EFFECT GRID */
 .ef-grid{display:grid;grid-template-columns:repeat(4,1fr);gap:3px}
@@ -116,7 +119,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:8px;height
 <body>
 
 <header>
-  <div class="h-title">XTYPE</div>
+  <div class="h-title">EXP.TYPO</div>
   <nav class="tab-nav">
     <button class="tab-btn on" data-tab="engine">TYPO ENGINE</button>
     <button class="tab-btn" data-tab="draw">GRID DRAW</button>
@@ -142,6 +145,22 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:8px;height
   <div class="pnl">
     <div class="plbl">input</div>
     <input class="txt-inp" type="text" id="txtIn" value="TYPE" maxlength="20">
+  </div>
+  <div class="pnl">
+    <div class="plbl">source mode</div>
+    <div style="display:flex;gap:3px;margin-bottom:7px">
+      <div class="act-btn p" id="srcText" onclick="setSource('text')" style="padding:5px 0">TEXT</div>
+      <div class="act-btn" id="srcSVG" onclick="setSource('svg')" style="padding:5px 0">SVG / IMG</div>
+    </div>
+    <div id="svgSrcRow" style="display:none">
+      <label class="upl-btn" for="svgFile">↑ UPLOAD SVG / PNG / JPG</label>
+      <input type="file" id="svgFile" accept=".svg,.png,.jpg,.jpeg,.webp" style="display:none">
+      <div id="svgTag" style="display:none;font-size:8px;color:var(--dim);margin-top:4px;letter-spacing:.1em;padding:2px 0"></div>
+      <div class="sr" style="margin-top:6px">
+        <div class="sr-h"><label>Scale</label><span class="v" id="vSvgSc">90%</span></div>
+        <input type="range" id="sSvgSc" min="5" max="200" step="5" value="90">
+      </div>
+    </div>
   </div>
   <div class="pnl">
     <div class="plbl">typeface</div>
@@ -188,6 +207,18 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:8px;height
     <div class="sr"><div class="sr-h"><label>Size</label><span class="v" id="vSz">10</span></div><input type="range" id="sSz" min="2" max="60" step="1" value="10"></div>
     <div class="sr"><div class="sr-h"><label>Gap</label><span class="v" id="vG">2</span></div><input type="range" id="sG" min="0" max="40" step="1" value="2"></div>
     <div class="sr"><div class="sr-h"><label>Stretch</label><span class="v" id="vSt">1.0</span></div><input type="range" id="sSt" min="0.05" max="8" step="0.05" value="1"></div>
+    <div class="sr"><div class="sr-h"><label>Baseline Thick</label><span class="v" id="vBT">0.5</span></div><input type="range" id="sBT" min="0.1" max="6" step="0.1" value="0.5"></div>
+    <div class="tog-row">
+      <label>Baseline Color</label>
+      <div style="display:flex;align-items:center;gap:6px">
+        <input type="color" id="cBL" class="color-pick" value="#ffffff">
+        <span style="font-size:8px;color:var(--dim);letter-spacing:.1em" id="vBLO">28%</span>
+      </div>
+    </div>
+    <div class="sr" style="margin-top:4px">
+      <div class="sr-h"><label>Baseline Opacity</label></div>
+      <input type="range" id="sBLO" min="1" max="100" step="1" value="28">
+    </div>
     <div class="sr"><div class="sr-h"><label>Wave Amp</label><span class="v" id="vWA">0</span></div><input type="range" id="sWA" min="0" max="80" step="1" value="0"></div>
     <div class="sr"><div class="sr-h"><label>Wave Freq</label><span class="v" id="vWF">4</span></div><input type="range" id="sWF" min="1" max="30" step="1" value="4"></div>
     <div class="sr"><div class="sr-h"><label>Jitter</label><span class="v" id="vJ">0</span></div><input type="range" id="sJ" min="0" max="120" step="1" value="0"></div>
@@ -195,11 +226,15 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:8px;height
   </div>
   <div class="pnl">
     <div class="plbl">mode</div>
-    <div class="tog-row"><label>Invert</label><div class="tog" id="tInv" onclick="togClick(this,'invert')"><div class="tog-d"></div></div></div>
     <div class="tog-row"><label>Stroke Only</label><div class="tog" id="tStr" onclick="togClick(this,'strokeOnly')"><div class="tog-d"></div></div></div>
     <div class="sr" id="strokeWidthRow" style="margin-top:6px;display:none">
       <div class="sr-h"><label>Stroke Width</label><span class="v" id="vSW">1.0</span></div>
       <input type="range" id="sSW" min="0.2" max="8" step="0.1" value="1">
+    </div>
+    <div class="tog-row" style="margin-top:4px"><label>Grid Overlay</label><div class="tog" id="tGridOv" onclick="togClick(this,'gridOverlay')"><div class="tog-d"></div></div></div>
+    <div class="sr" id="gridOpRow" style="display:none;margin-top:4px">
+      <div class="sr-h"><label>Grid Opacity</label><span class="v" id="vGO">15%</span></div>
+      <input type="range" id="sGO" min="2" max="60" step="1" value="15">
     </div>
   </div>
   <div class="pnl">
@@ -229,7 +264,7 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:8px;height
   <div class="cv-corner tr">// ©</div>
   <div class="cv-corner bl">W:900 // H:450</div>
   <div class="cv-zoom">
-    <span style="color:var(--dim);font-size:7px;letter-spacing:.15em">SCROLL:ZOOM · ALT+DRAG:PAN</span>
+    <span style="color:var(--dim);font-size:7px;letter-spacing:.15em">SCROLL:ZOOM · SPACE+DRAG:PAN · ALT+DRAG:PAN</span>
     <button onclick="cvResetView()" style="background:#000;border:1px solid var(--b1);color:var(--dim);font-family:var(--mono);font-size:7px;letter-spacing:.1em;padding:2px 6px;cursor:pointer;" onmouseover="this.style.color='var(--fg)'" onmouseout="this.style.color='var(--dim)'">RESET</button>
     <span id="cvZoomLabel" style="color:var(--dim);font-size:7px;letter-spacing:.15em;min-width:32px;text-align:right">100%</span>
   </div>
@@ -284,6 +319,10 @@ input[type=range]::-webkit-slider-thumb{-webkit-appearance:none;width:8px;height
     <div class="tog-row">
       <label>Show Grid Lines</label>
       <div class="tog on" id="tGrid" onclick="this.classList.toggle('on');GD.showGrid=this.classList.contains('on');gdRedraw()"><div class="tog-d"></div></div>
+    </div>
+    <div class="sr" style="margin-top:4px">
+      <div class="sr-h"><label>Grid Opacity</label><span class="v" id="vGdOp">7%</span></div>
+      <input type="range" id="sGdOp" min="1" max="60" step="1" value="7">
     </div>
     <div class="tog-row">
       <label>Snap Dots</label>
@@ -352,20 +391,20 @@ const EFFECTS=[
   {cat:'── FILL / DOT ──'},
   ['ovals','OVALS'],['circles','CIRCS'],['squares','SQRS'],['diamonds','DIAMS'],
   ['triangles','TRI'],['halftone','HALF'],['hex','HEX'],['static','STAT'],
+  ['pixl','PIXL'],['rings','RNGS'],['iso3d','ISO3'],
+  {cat:'── CONNECTED ──'},
+  ['connx','CONN'],['techg','TECH'],
   {cat:'── LINE / BAND ──'},
-  ['hlines','H.LNS'],['vlines','V.LNS'],['barcode','BARC'],['scan','SCAN'],
-  ['segments','SEGS'],['diagonal','DIAG'],['xhatch','XHCH'],['morse','MORS'],
-  {cat:'── WAVE / FLOW ──'},
-  ['waveh','WV.H'],['wavev','WV.V'],['radial','RADL'],['circuit','CRCT'],
-  {cat:'── ARC / RING ──'},
-  ['arcseg','ARC'],['optical','OPT'],['contour','CNTR'],
-  {cat:'── SPLICE / REFRACT ──'},
-  ['prism','PRISM'],['shear','SHEAR'],['scatter','SCAT'],['skewcols','SKEWC'],
-  ['mirror','MIRR'],['ripslice','RIPL'],['glitch','GLTCH'],['kaleid','KALD'],
+  ['hlines','H.LNS'],['vlines','V.LNS'],['varline','VARL'],['varvl','VRVL'],
+  ['barcode','BARC'],['scan','SCAN'],['stripe','STRP'],
+  ['varcircle','VARC'],['varcross','VARX'],['varovl','VARO'],
+  ['segments','SEGS'],['diagonal','DIAG'],['morse','MORS'],
+  {cat:'── SPECIAL ──'},
+  ['edge','EDGE'],['rain','RAIN'],['grid','GRID'],
   {cat:'── GLASS / LENS ──'},
-  ['lentic','LNTC'],['accord','ACRD'],['stackr','STCK'],['lensv','LNSV'],
+  ['lentic','LNTC'],['accord','ACRD'],
 ];
-const S={text:'TYPE',font:'Bebas Neue',fontSize:100,kerning:0,oblique:0,effect:'ovals',size:10,gap:2,stretch:1,waveAmp:0,waveFreq:4,jitter:0,segs:8,invert:false,strokeOnly:false,strokeWidth:1,customFont:null};
+const S={text:'TYPE',font:'Bebas Neue',fontSize:100,kerning:0,oblique:0,effect:'ovals',size:10,gap:2,stretch:1,waveAmp:0,waveFreq:4,jitter:0,segs:8,strokeOnly:false,strokeWidth:1,gridOverlay:false,gridOpacity:15,baselineThick:0.5,baselineColor:'#ffffff',baselineOpacity:28,svgMode:false,svgScale:90,customFont:null};
 let uploadedFonts=[];
 
 function addFontToDropdown(name,displayName){const og=document.getElementById('uploadedOptGroup');og.style.display='';const opt=document.createElement('option');opt.value=name;opt.textContent='↑ '+displayName;og.appendChild(opt);document.getElementById('fntSel').value=name;}
@@ -374,9 +413,14 @@ document.getElementById('fntSel').addEventListener('change',e=>{S.font=e.target.
 
 const efGrid=document.getElementById('efGrid');
 EFFECTS.forEach(item=>{if(item.cat){const d=document.createElement('div');d.className='ef-cat';d.textContent=item.cat;efGrid.appendChild(d);return;}const[id,lbl]=item;const b=document.createElement('div');b.className='ef-btn'+(id===S.effect?' on':'');b.dataset.e=id;b.textContent=lbl;b.onclick=()=>{document.querySelectorAll('.ef-btn').forEach(x=>x.classList.remove('on'));b.classList.add('on');S.effect=id;document.getElementById('hEff').textContent=lbl;render();};efGrid.appendChild(b);});
-function togClick(el,k){el.classList.toggle('on');S[k]=el.classList.contains('on');if(k==='strokeOnly')document.getElementById('strokeWidthRow').style.display=S.strokeOnly?'flex':'none';render();}
+function togClick(el,k){el.classList.toggle('on');S[k]=el.classList.contains('on');
+  if(k==='strokeOnly')document.getElementById('strokeWidthRow').style.display=S.strokeOnly?'flex':'none';
+  if(k==='gridOverlay')document.getElementById('gridOpRow').style.display=S.gridOverlay?'flex':'none';
+  render();}
 function bind(id,vId,k,fmt){const el=document.getElementById(id),ve=document.getElementById(vId);el.addEventListener('input',()=>{S[k]=parseFloat(el.value);ve.textContent=fmt?fmt(S[k]):S[k];render();});}
-bind('sFsz','vFsz','fontSize',v=>v+'px');bind('sK','vK','kerning');bind('sO','vO','oblique',v=>v+'°');bind('sSz','vSz','size');bind('sG','vG','gap');bind('sSt','vSt','stretch',v=>v.toFixed(2));bind('sWA','vWA','waveAmp');bind('sWF','vWF','waveFreq');bind('sJ','vJ','jitter');bind('sSeg','vSeg','segs');bind('sSW','vSW','strokeWidth',v=>v.toFixed(1));
+bind('sFsz','vFsz','fontSize',v=>v+'px');bind('sK','vK','kerning');bind('sO','vO','oblique',v=>v+'°');bind('sSz','vSz','size');bind('sG','vG','gap');bind('sSt','vSt','stretch',v=>v.toFixed(2));bind('sBT','vBT','baselineThick',v=>v.toFixed(1));bind('sWA','vWA','waveAmp');bind('sWF','vWF','waveFreq');bind('sJ','vJ','jitter');bind('sSeg','vSeg','segs');bind('sSW','vSW','strokeWidth',v=>v.toFixed(1));bind('sGO','vGO','gridOpacity',v=>v+'%');bind('sSvgSc','vSvgSc','svgScale',v=>v+'%');
+document.getElementById('sBLO').addEventListener('input',e=>{S.baselineOpacity=parseInt(e.target.value);document.getElementById('vBLO').textContent=S.baselineOpacity+'%';render();});
+document.getElementById('cBL').addEventListener('input',e=>{S.baselineColor=e.target.value;render();});
 document.getElementById('sFsz').addEventListener('input',()=>document.getElementById('hSzH').textContent=S.fontSize+'PX');
 document.getElementById('sK').addEventListener('input',()=>document.getElementById('hKH').textContent=S.kerning);
 document.getElementById('txtIn').addEventListener('input',e=>{S.text=e.target.value||' ';render();});
@@ -386,26 +430,64 @@ function loadPresets(){try{presets=JSON.parse(localStorage.getItem(PRESET_KEY)||
 function savePreset(){const nm=document.getElementById('presetName').value.trim();if(!nm)return;const p={name:nm,state:{...S},fontDisplayName:S.customFont?(uploadedFonts.find(f=>f.name===S.customFont)||{displayName:S.font}).displayName:S.font,ts:Date.now()};presets=presets.filter(x=>x.name!==nm);presets.unshift(p);if(presets.length>30)presets=presets.slice(0,30);localStorage.setItem(PRESET_KEY,JSON.stringify(presets));document.getElementById('presetName').value='';renderPresetList();}
 function deletePreset(i){presets.splice(i,1);localStorage.setItem(PRESET_KEY,JSON.stringify(presets));renderPresetList();}
 function applyPreset(p){const st=p.state;Object.keys(st).forEach(k=>{if(k in S)S[k]=st[k];});if(S.customFont&&!uploadedFonts.find(f=>f.name===S.customFont)){S.customFont=null;S.font=p.fontDisplayName||'Bebas Neue';const sel=document.getElementById('fntSel');let m=false;for(const o of sel.options){if(o.value===S.font){sel.value=S.font;m=true;break;}}if(!m){sel.value='Bebas Neue';S.font='Bebas Neue';}}else{const sel=document.getElementById('fntSel');if(S.customFont)sel.value=S.customFont;else sel.value=S.font;}syncAllUI();render();}
-function syncAllUI(){const set=(id,val)=>{const e=document.getElementById(id);if(e)e.value=val;};const txt=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val;};document.getElementById('txtIn').value=S.text;set('sFsz',S.fontSize);txt('vFsz',S.fontSize+'px');txt('hSzH',S.fontSize+'PX');set('sK',S.kerning);txt('vK',S.kerning);txt('hKH',S.kerning);set('sO',S.oblique);txt('vO',S.oblique+'°');set('sSz',S.size);txt('vSz',S.size);set('sG',S.gap);txt('vG',S.gap);set('sSt',S.stretch);txt('vSt',S.stretch.toFixed(2));set('sWA',S.waveAmp);txt('vWA',S.waveAmp);set('sWF',S.waveFreq);txt('vWF',S.waveFreq);set('sJ',S.jitter);txt('vJ',S.jitter);set('sSeg',S.segs);txt('vSeg',S.segs);set('sSW',S.strokeWidth);txt('vSW',S.strokeWidth.toFixed(1));document.getElementById('tInv').classList.toggle('on',S.invert);document.getElementById('tStr').classList.toggle('on',S.strokeOnly);document.getElementById('strokeWidthRow').style.display=S.strokeOnly?'flex':'none';document.querySelectorAll('.ef-btn').forEach(b=>b.classList.toggle('on',b.dataset.e===S.effect));const eLbl=EFFECTS.find(x=>Array.isArray(x)&&x[0]===S.effect);document.getElementById('hEff').textContent=eLbl?eLbl[1]:S.effect.toUpperCase();const fntDisp=S.customFont?(uploadedFonts.find(f=>f.name===S.customFont)||{displayName:S.font}).displayName:S.font;document.getElementById('hFnt').textContent=fntDisp.toUpperCase();}
+function syncAllUI(){const set=(id,val)=>{const e=document.getElementById(id);if(e)e.value=val;};const txt=(id,val)=>{const e=document.getElementById(id);if(e)e.textContent=val;};document.getElementById('txtIn').value=S.text;set('sFsz',S.fontSize);txt('vFsz',S.fontSize+'px');txt('hSzH',S.fontSize+'PX');set('sK',S.kerning);txt('vK',S.kerning);txt('hKH',S.kerning);set('sO',S.oblique);txt('vO',S.oblique+'°');set('sSz',S.size);txt('vSz',S.size);set('sG',S.gap);txt('vG',S.gap);set('sSt',S.stretch);txt('vSt',S.stretch.toFixed(2));set('sBT',S.baselineThick);txt('vBT',S.baselineThick.toFixed(1));set('sWA',S.waveAmp);txt('vWA',S.waveAmp);set('sWF',S.waveFreq);txt('vWF',S.waveFreq);set('sJ',S.jitter);txt('vJ',S.jitter);set('sSeg',S.segs);txt('vSeg',S.segs);set('sSW',S.strokeWidth);txt('vSW',S.strokeWidth.toFixed(1));set('sGO',S.gridOpacity);txt('vGO',S.gridOpacity+'%');document.getElementById('tStr').classList.toggle('on',S.strokeOnly);document.getElementById('strokeWidthRow').style.display=S.strokeOnly?'flex':'none';document.getElementById('tGridOv').classList.toggle('on',S.gridOverlay);document.getElementById('gridOpRow').style.display=S.gridOverlay?'flex':'none';document.querySelectorAll('.ef-btn').forEach(b=>b.classList.toggle('on',b.dataset.e===S.effect));const eLbl=EFFECTS.find(x=>Array.isArray(x)&&x[0]===S.effect);document.getElementById('hEff').textContent=eLbl?eLbl[1]:S.effect.toUpperCase();const fntDisp=S.customFont?(uploadedFonts.find(f=>f.name===S.customFont)||{displayName:S.font}).displayName:S.font;document.getElementById('hFnt').textContent=fntDisp.toUpperCase();}
 function renderPresetList(){const el=document.getElementById('presetList');if(!presets.length){el.innerHTML='<div class="preset-empty">NO PRESETS YET</div>';return;}el.innerHTML='';presets.forEach((p,i)=>{const row=document.createElement('div');row.className='preset-row';const nm=document.createElement('div');nm.className='preset-name';nm.textContent='['+String(i+1).padStart(2,'0')+'] '+p.name.toUpperCase();nm.onclick=()=>applyPreset(p);const del=document.createElement('div');del.className='preset-del';del.textContent='×';del.onclick=()=>deletePreset(i);row.appendChild(nm);row.appendChild(del);el.appendChild(row);});}
 
+// SVG / image mask
+let svgMaskImg=null;
+function setSource(mode){
+  S.svgMode=mode==='svg';
+  document.getElementById('srcText').classList.toggle('p',!S.svgMode);
+  document.getElementById('srcSVG').classList.toggle('p',S.svgMode);
+  document.getElementById('svgSrcRow').style.display=S.svgMode?'block':'none';
+  render();
+}
+document.getElementById('svgFile').addEventListener('change',e=>{
+  const file=e.target.files[0];if(!file)return;
+  const url=URL.createObjectURL(file);
+  const img=new Image();
+  img.onload=()=>{svgMaskImg=img;document.getElementById('svgTag').textContent='✓ '+file.name;document.getElementById('svgTag').style.display='block';render();URL.revokeObjectURL(url);};
+  img.src=url;e.target.value='';
+});
+
 function getFontStr(){return S.customFont?`'${S.customFont}'`:`'${S.font}'`;}
-function buildMask(){ox.clearRect(0,0,VW,VH);ox.fillStyle='#000';ox.fillRect(0,0,VW,VH);ox.fillStyle='#fff';ox.font=`700 ${S.fontSize}px ${getFontStr()}, sans-serif`;try{ox.letterSpacing=S.kerning+'px';}catch(e){}ox.textAlign='center';ox.textBaseline='middle';if(S.oblique!==0){const sk=Math.tan(S.oblique*Math.PI/180);ox.save();ox.transform(1,0,sk,1,0,0);}ox.fillText(S.text,VW/2,VH/2);if(S.oblique!==0)ox.restore();return ox.getImageData(0,0,VW,VH);}
+function buildMask(){
+  ox.clearRect(0,0,VW,VH);ox.fillStyle='#000';ox.fillRect(0,0,VW,VH);ox.fillStyle='#fff';
+  if(S.svgMode&&svgMaskImg){
+    const sc=S.svgScale/100;
+    const iw=svgMaskImg.naturalWidth||svgMaskImg.width||VW;
+    const ih=svgMaskImg.naturalHeight||svgMaskImg.height||VH;
+    const asp=iw/ih;
+    let w,h;
+    if(asp>VW/VH){w=VW*sc;h=w/asp;}else{h=VH*sc;w=h*asp;}
+    ox.drawImage(svgMaskImg,(VW-w)/2,(VH-h)/2,w,h);
+  }else{
+    ox.font=`700 ${S.fontSize}px ${getFontStr()}, sans-serif`;
+    try{ox.letterSpacing=S.kerning+'px';}catch(e){}
+    ox.textAlign='center';ox.textBaseline='middle';
+    if(S.oblique!==0){const sk=Math.tan(S.oblique*Math.PI/180);ox.save();ox.transform(1,0,sk,1,0,0);}
+    ox.fillText(S.text,VW/2,VH/2);
+    if(S.oblique!==0)ox.restore();
+  }
+  return ox.getImageData(0,0,VW,VH);
+}
 function px(d,x,y){x=Math.round(x);y=Math.round(y);if(x<0||y<0||x>=d.width||y>=d.height)return false;return d.data[(y*d.width+x)*4]>128;}
 function dens(d,x,y,r){let c=0,t=0;for(let dy=-r;dy<=r;dy+=2)for(let dx=-r;dx<=r;dx+=2){t++;if(px(d,x+dx,y+dy))c++;}return t>0?c/t:0;}
 const F=x=>x.toFixed(2);
 function jx(){return S.jitter>0?(Math.random()-.5)*S.jitter*.4:0;}
 function jy(){return S.jitter>0?(Math.random()-.5)*S.jitter*.4:0;}
 function wox(x,y){return x+jx()+(S.waveAmp>0?Math.sin(y/VH*Math.PI*2*S.waveFreq)*S.waveAmp:0);}
-function hit(d,x,y){const h=px(d,x,y);return S.invert?!h:h;}
+function hit(d,x,y){return px(d,x,y);}
 function shp(tag,attr){if(S.strokeOnly){attr.fill='none';attr.stroke='white';attr['stroke-width']=String(S.strokeWidth);}else{attr.fill='white';}const a=Object.entries(attr).map(([k,v])=>`${k}="${v}"`).join(' ');return `<${tag} ${a}/>`;}
-
+// Baseline line attributes helper — uses user-controlled color, opacity, thickness
+function BL(){return `stroke="${S.baselineColor}" stroke-width="${F(S.baselineThick)}" opacity="${(S.baselineOpacity/100).toFixed(2)}"`;}
+function BLc(col){return `stroke="${col}" stroke-width="${F(S.baselineThick)}" opacity="${(S.baselineOpacity/100).toFixed(2)}"`;}// for CONNX/TECHG with own color control
 function rOvals(d){const step=S.size+S.gap;let s='';for(let y=step/2;y<VH;y+=step)for(let x=step/2;x<VW;x+=step){if(!hit(d,x,y))continue;const cx=wox(x,y),cy=y+jy(),rx=S.size/2*S.stretch,ry=S.size/2*.55/Math.max(.1,S.stretch);s+=shp('ellipse',{cx:F(cx),cy:F(cy),rx:F(rx),ry:F(ry)});}return s;}
 function rCircles(d){const step=S.size+S.gap;let s='';for(let y=step/2;y<VH;y+=step)for(let x=step/2;x<VW;x+=step){if(!hit(d,x,y))continue;s+=shp('circle',{cx:F(wox(x,y)),cy:F(y+jy()),r:F(S.size/2)});}return s;}
 function rSquares(d){const step=S.size+S.gap;let s='';for(let y=step/2;y<VH;y+=step)for(let x=step/2;x<VW;x+=step){if(!hit(d,x,y))continue;const cx=wox(x,y),cy=y+jy(),w=S.size*S.stretch,h=S.size/Math.max(.1,S.stretch);s+=shp('rect',{x:F(cx-w/2),y:F(cy-h/2),width:F(w),height:F(h)});}return s;}
 function rDiamonds(d){const step=S.size+S.gap;let s='';for(let y=step/2;y<VH;y+=step)for(let x=step/2;x<VW;x+=step){if(!hit(d,x,y))continue;const cx=wox(x,y),cy=y+jy(),hw=S.size/2*S.stretch,hh=S.size/2/Math.max(.1,S.stretch);s+=shp('polygon',{points:`${F(cx)},${F(cy-hh)} ${F(cx+hw)},${F(cy)} ${F(cx)},${F(cy+hh)} ${F(cx-hw)},${F(cy)}`});}return s;}
 function rTriangles(d){const step=S.size+S.gap;let s='';for(let y=0;y<VH;y+=step)for(let x=0;x<VW;x+=step){if(!hit(d,x+step/2,y+step/2))continue;const ox2=wox(x,y+step/2),oy2=y+jy(),w=step*S.stretch,h=step/Math.max(.1,S.stretch);s+=shp('polygon',{points:`${F(ox2)},${F(oy2+h)} ${F(ox2+w/2)},${F(oy2)} ${F(ox2+w)},${F(oy2+h)}`});}return s;}
-function rHalftone(d){const step=S.size+S.gap;let s='';for(let y=step/2;y<VH;y+=step)for(let x=step/2;x<VW;x+=step){const den=S.invert?1-dens(d,x,y,S.size):dens(d,x,y,S.size);if(den<.04)continue;const r=(step/2)*den*S.stretch;if(r<.4)continue;s+=shp('circle',{cx:F(x+jx()+(S.waveAmp>0?Math.sin(y/VH*Math.PI*2*S.waveFreq)*S.waveAmp:0)),cy:F(y+jy()),r:F(r)});}return s;}
+function rHalftone(d){const step=S.size+S.gap;let s='';for(let y=step/2;y<VH;y+=step)for(let x=step/2;x<VW;x+=step){const den=dens(d,x,y,S.size);if(den<.04)continue;const r=(step/2)*den*S.stretch;if(r<.4)continue;s+=shp('circle',{cx:F(x+jx()+(S.waveAmp>0?Math.sin(y/VH*Math.PI*2*S.waveFreq)*S.waveAmp:0)),cy:F(y+jy()),r:F(r)});}return s;}
 function rHex(d){const r=S.size,h2=r*Math.sqrt(3);const cols=Math.ceil(VW/(r*1.5))+2,rows=Math.ceil(VH/h2)+2;let s='';for(let row=-1;row<rows;row++)for(let col=-1;col<cols;col++){const cx=col*r*3/2,cy=row*h2+(col%2===0?0:h2/2);if(!hit(d,cx,cy))continue;const wa=S.waveAmp>0?Math.sin(cy/VH*Math.PI*2*S.waveFreq)*S.waveAmp:0;const pts=Array.from({length:6},(_,a)=>{const ag=Math.PI/180*(60*a-30);return `${F(cx+wa+Math.cos(ag)*r)},${F(cy+Math.sin(ag)*r)}`;}).join(' ');s+=shp('polygon',{points:pts});}return s;}
 function rStatic(d){const count=12000,ps=Math.max(.8,S.size*.2);let s='';for(let i=0;i<count;i++){const x=Math.random()*VW,y=Math.random()*VH;if(!hit(d,x,y))continue;const wx2=x+(S.waveAmp>0?Math.sin(y/VH*Math.PI*2*S.waveFreq)*S.waveAmp:0)+jx();s+=`<rect x="${F(wx2)}" y="${F(y+jy())}" width="${F(ps)}" height="${F(ps)}" fill="white"/>`;}return s;}
 function rHLines(d){const step=S.size+S.gap,thick=Math.max(1,S.size*.5*S.stretch);let s='';for(let y=step/2;y<VH;y+=step){let inT=false,sx=0;for(let x=0;x<=VW+1;x++){const wa=S.waveAmp>0?Math.sin(x/VW*Math.PI*2*S.waveFreq)*S.waveAmp:0;const h=hit(d,x,y+wa);if(h&&!inT){inT=true;sx=x;}else if(!h&&inT){inT=false;s+=`<rect x="${sx}" y="${F(y-thick/2+jy())}" width="${x-sx}" height="${F(thick)}" fill="white"/>`;}}if(inT)s+=`<rect x="${sx}" y="${F(y-thick/2)}" width="${VW-sx}" height="${F(thick)}" fill="white"/>`;}return s;}
@@ -415,24 +497,249 @@ function rScan(d){const step=S.size+S.gap,thick=Math.max(1,S.size*.7*S.stretch);
 function rSegments(d){const step=(S.size+S.gap)*S.stretch,thick=Math.max(2,step*.65);let s='';for(let y=thick;y<VH;y+=step){let inT=false,sx=0;for(let x=0;x<=VW+1;x++){const wa=S.waveAmp>0?Math.sin(x/VW*Math.PI*2*S.waveFreq)*S.waveAmp:0;const h=hit(d,x,y+wa);if(h&&!inT){inT=true;sx=x;}else if(!h&&inT){inT=false;const w=x-sx,rr=thick/2;if(w>rr*2)s+=`<rect x="${F(sx+rr)}" y="${F(y-thick/2+jy())}" width="${F(w-rr*2)}" height="${F(thick)}" rx="${F(rr)}" fill="white"/>`;}}  }return s;}
 function ln(pts,thick){const p=pts[0],q=pts[pts.length-1];return `<line x1="${F(p[0])}" y1="${F(p[1])}" x2="${F(q[0])}" y2="${F(q[1])}" stroke="white" stroke-width="${thick}"/>`;}
 function rDiagonal(d){const step=S.size+S.gap,thick=Math.max(.5,S.size*.4*S.stretch);let s='';for(let dd=-(VH);dd<=VW+VH;dd+=step){let pts=[],inT=false;for(let t=0;t<=VW+VH;t++){const x=dd+t,y=t;if(x<0||x>VW||y<0||y>VH){if(inT&&pts.length>1){s+=ln(pts,thick);pts=[];inT=false;}continue;}const wa=S.waveAmp>0?Math.sin(t/(VW+VH)*Math.PI*2*S.waveFreq)*S.waveAmp:0;if(hit(d,x+wa,y)){inT=true;pts.push([x,y]);}else if(inT){s+=ln(pts,thick);pts=[];inT=false;}}if(inT&&pts.length>1)s+=ln(pts,thick);}return s;}
-function rXHatch(d){const step=S.size+S.gap,thick=Math.max(.3,S.size*.25*S.stretch);let s='';for(let dd=-(VH);dd<=VW+VH;dd+=step){let pts=[],inT=false;for(let t=0;t<=VW+VH;t++){const x=dd+t,y=t;if(x<0||x>VW||y<0||y>VH){if(inT&&pts.length>1){s+=ln(pts,thick);pts=[];inT=false;}continue;}if(hit(d,x,y)){inT=true;pts.push([x,y]);}else if(inT){s+=ln(pts,thick);pts=[];inT=false;}}if(inT&&pts.length>1)s+=ln(pts,thick);}for(let dd=0;dd<=VW+VH*2;dd+=step){let pts=[],inT=false;for(let t=0;t<=VW+VH;t++){const x=dd-t,y=t;if(x<0||x>VW||y<0||y>VH){if(inT&&pts.length>1){s+=ln(pts,thick);pts=[];inT=false;}continue;}if(hit(d,x,y)){inT=true;pts.push([x,y]);}else if(inT){s+=ln(pts,thick);pts=[];inT=false;}}if(inT&&pts.length>1)s+=ln(pts,thick);}return s;}
+
 function rMorse(d){const step=S.size+S.gap,thick=Math.max(1,S.size*.4*S.stretch);const dw=S.size*.7,dashw=S.size*2.2;let s='';for(let y=step/2;y<VH;y+=step){let x=0;while(x<VW){const wa=S.waveAmp>0?Math.sin(x/VW*Math.PI*2*S.waveFreq)*S.waveAmp:0;if(hit(d,x,y+wa)){const w=Math.random()>.45?dw:dashw;s+=`<rect x="${F(x)}" y="${F(y-thick/2+jy())}" width="${F(w)}" height="${F(thick)}" fill="white"/>`;x+=w+Math.max(2,S.gap);}else x+=step/4;}}return s;}
-function rWaveH(d){const step=S.size+S.gap,amp=Math.max(S.waveAmp,2),thick=Math.max(1,S.size*.4*S.stretch);let s='';for(let y=step/2;y<VH;y+=step){let path='',started=false;for(let x=0;x<=VW;x+=2){const wy=y+Math.sin(x/VW*Math.PI*2*S.waveFreq)*amp;const h=hit(d,x,y);if(h){if(!started){path+=`M${x},${F(wy)}`;started=true;}else path+=` L${x},${F(wy)}`;}else if(started){s+=`<path d="${path}" stroke="white" stroke-width="${thick}" fill="none"/>`;path='';started=false;}}if(started)s+=`<path d="${path}" stroke="white" stroke-width="${thick}" fill="none"/>`;}return s;}
-function rWaveV(d){const step=S.size+S.gap,amp=Math.max(S.waveAmp,2),thick=Math.max(1,S.size*.4*S.stretch);let s='';for(let x=step/2;x<VW;x+=step){let path='',started=false;for(let y=0;y<=VH;y+=2){const wx2=x+Math.sin(y/VH*Math.PI*2*S.waveFreq)*amp;const h=hit(d,x,y);if(h){if(!started){path+=`M${F(wx2)},${y}`;started=true;}else path+=` L${F(wx2)},${y}`;}else if(started){s+=`<path d="${path}" stroke="white" stroke-width="${thick}" fill="none"/>`;path='';started=false;}}if(started)s+=`<path d="${path}" stroke="white" stroke-width="${thick}" fill="none"/>`;}return s;}
-function rRadial(d){const cxC=VW/2,cyC=VH/2;const rayCount=Math.round(360/Math.max(.5,S.size*.5));const thick=Math.max(.5,S.size*.3*S.stretch);let s='';for(let i=0;i<rayCount;i++){const ang=i/rayCount*Math.PI*2;const ca=Math.cos(ang),sa=Math.sin(ang);let inT=false,sr2=0;const flush2=(er)=>{const x1=cxC+ca*sr2,y1=cyC+sa*sr2,x2=cxC+ca*er,y2=cyC+sa*er;s+=`<line x1="${F(x1)}" y1="${F(y1)}" x2="${F(x2)}" y2="${F(y2)}" stroke="white" stroke-width="${thick}"/>`;};for(let r=0;r<Math.max(VW,VH)*.8;r+=1){const x=cxC+ca*r,y=cyC+sa*r;if(x<0||x>VW||y<0||y>VH){if(inT){flush2(r);inT=false;}break;}const wa=S.waveAmp>0?Math.sin(r/200*Math.PI*2*S.waveFreq)*S.waveAmp*.15:0;const h=hit(d,x+wa,y);if(h&&!inT){inT=true;sr2=r;}else if(!h&&inT){flush2(r);inT=false;}}}return s;}
-function rCircuit(d){const step=S.size+S.gap,thick=Math.max(1,S.size*.3*S.stretch);const hs=step/2;let s='';for(let y=step;y<VH;y+=step)for(let x=step;x<VW;x+=step){if(!hit(d,x,y))continue;const cx=wox(x,y),cy=y;const t=Math.floor(Math.random()*4);switch(t){case 0:s+=`<path d="M${F(cx-hs)},${F(cy)} L${F(cx)},${F(cy)} L${F(cx)},${F(cy-hs)}" stroke="white" stroke-width="${thick}" fill="none"/>`;break;case 1:s+=`<path d="M${F(cx+hs)},${F(cy)} L${F(cx)},${F(cy)} L${F(cx)},${F(cy+hs)}" stroke="white" stroke-width="${thick}" fill="none"/>`;break;case 2:s+=`<path d="M${F(cx-hs)},${F(cy)} L${F(cx+hs)},${F(cy)} M${F(cx)},${F(cy)} L${F(cx)},${F(cy+hs)}" stroke="white" stroke-width="${thick}" fill="none"/>`;break;default:s+=`<path d="M${F(cx-hs)},${F(cy)} L${F(cx+hs)},${F(cy)} M${F(cx)},${F(cy-hs)} L${F(cx)},${F(cy+hs)}" stroke="white" stroke-width="${thick}" fill="none"/>`;}s+=`<circle cx="${F(cx)}" cy="${F(cy)}" r="${F(thick*.9)}" fill="white"/>`;}return s;}
-function rArcSeg(d){const cxC=VW/2,cyC=VH/2,maxR=Math.max(VW,VH)*.7,rStep=S.size+S.gap,sw2=Math.max(1,S.size*S.stretch);let s='';for(let r=rStep;r<maxR;r+=rStep){const steps=Math.max(24,Math.round(2*Math.PI*r*.8)),dA=2*Math.PI/steps;let inT=false,sa=0;for(let i=0;i<=steps+1;i++){const a=i*dA,px2=cxC+Math.cos(a)*r,py2=cyC+Math.sin(a)*r,h=hit(d,px2,py2);if(h&&!inT){inT=true;sa=a;}else if(!h&&inT){inT=false;const ea=a,x1=cxC+Math.cos(sa)*r,y1=cyC+Math.sin(sa)*r,x2=cxC+Math.cos(ea)*r,y2=cyC+Math.sin(ea)*r;s+=`<path d="M${F(x1)},${F(y1)} A${F(r)},${F(r)} 0 ${(ea-sa)>Math.PI?1:0},1 ${F(x2)},${F(y2)}" fill="none" stroke="white" stroke-width="${F(sw2)}"/>`;}}  }return s;}
-function rOptical(d){const off=S.size*2.5+10;const centers=[[VW/2,VH/2],[VW/2-off,VH/2-off*.4],[VW/2+off,VH/2+off*.4]];const rStep=S.size+S.gap,thick=Math.max(.5,S.size*.35*S.stretch);let s='';centers.forEach(([cxC,cyC],ci)=>{for(let r=rStep;r<Math.sqrt(VW*VW+VH*VH);r+=rStep){const steps=Math.max(16,Math.round(2*Math.PI*r*.6)),dA=2*Math.PI/steps;let inT=false,sa=0;for(let i=0;i<=steps+1;i++){const a=i*dA+ci*(S.size*.3),px2=cxC+Math.cos(a)*r,py2=cyC+Math.sin(a)*r;if(px2<-10||px2>VW+10||py2<-10||py2>VH+10){if(inT){const x1=cxC+Math.cos(sa)*r,y1=cyC+Math.sin(sa)*r,x2=cxC+Math.cos(a)*r,y2=cyC+Math.sin(a)*r;s+=`<path d="M${F(x1)},${F(y1)} A${F(r)},${F(r)} 0 ${(a-sa)>Math.PI?1:0},1 ${F(x2)},${F(y2)}" fill="none" stroke="white" stroke-width="${thick}"/>`;inT=false;}continue;}const h=hit(d,px2,py2);if(h&&!inT){inT=true;sa=a;}else if(!h&&inT){inT=false;const x1=cxC+Math.cos(sa)*r,y1=cyC+Math.sin(sa)*r,x2=cxC+Math.cos(a)*r,y2=cyC+Math.sin(a)*r;s+=`<path d="M${F(x1)},${F(y1)} A${F(r)},${F(r)} 0 ${(a-sa)>Math.PI?1:0},1 ${F(x2)},${F(y2)}" fill="none" stroke="white" stroke-width="${thick}"/>`;}}};});return s;}
-function rContour(d){const step=(S.size+S.gap)/S.fontSize*2.2,fnt=getFontStr(),sw3=Math.max(.3,S.size*.12*S.stretch);let s='';for(let sc=.05;sc<=2.2;sc+=step){const sz=S.fontSize*sc,wa=S.waveAmp>0?Math.sin(sc*Math.PI*2*S.waveFreq*.3)*S.waveAmp*.4:0;s+=`<text x="${F(VW/2+jx()+wa)}" y="${F(VH/2+jy())}" text-anchor="middle" dominant-baseline="middle" font-family="${fnt},sans-serif" font-size="${F(sz)}" font-weight="700" letter-spacing="${S.kerning}" fill="none" stroke="white" stroke-width="${F(sw3)}" transform="skewX(${S.oblique})">${S.text.toUpperCase()}</text>`;}return s;}
+
+// ─── NEW HIGH-TECH EFFECTS ────────────────────────────────────
+
+// PIXL — pixelation grid: square cells scaled by local density
+// Like a low-res screen displaying the letterform
+function rPixl(d){
+  const step=S.size+S.gap;let s='';
+  for(let y=step/2;y<VH;y+=step)for(let x=step/2;x<VW;x+=step){
+    const den=dens(d,x,y,step*.6);if(den<.04)continue;
+    const sz=Math.max(1,(step-S.gap)*den*S.stretch);
+    const cx=x+jx(),cy=y+jy();
+    s+=shp('rect',{x:F(cx-sz/2),y:F(cy-sz/2),width:F(sz),height:F(sz)});
+  }return s;
+}
+
+// EDGE — traces only the silhouette boundary of letters as a razor-thin stroke
+// Walks every pixel, emits a tiny rect wherever inside/outside transitions occur
+function rEdge(d){
+  const thick=Math.max(.5,S.baselineThick*S.stretch);
+  let s='';
+  for(let y=1;y<VH-1;y++){
+    for(let x=1;x<VW-1;x++){
+      const c=px(d,x,y);
+      const isEdge=c&&(!px(d,x+1,y)||!px(d,x-1,y)||!px(d,x,y+1)||!px(d,x,y-1));
+      if(!isEdge)continue;
+      const j=S.jitter>0?(Math.random()-.5)*S.jitter*.15:0;
+      s+=`<rect x="${F(x+j)}" y="${F(y+j)}" width="${F(thick)}" height="${F(thick)}" fill="white"/>`;
+    }
+  }
+  return s;
+}
+
+// ISO3D — isometric 3D extrusion: each filled grid node gets 3 parallelogram faces
+// giving a stacked-cube / extruded letterform look
+function rIso3d(d){
+  const sz=Math.max(4,S.size);
+  const step=sz+S.gap;
+  const h=sz*0.5*S.stretch; // vertical face height
+  const ang=Math.PI/6; // 30°
+  const dx=Math.cos(ang)*sz, dy=Math.sin(ang)*sz;
+  let s='';
+  for(let row=0;row*step<VH;row++)for(let col=0;col*step<VW;col++){
+    const gx=col*step+step/2, gy=row*step+step/2;
+    if(!hit(d,gx,gy))continue;
+    const ox2=gx+jx(),oy2=gy+jy();
+    // Top face (lightest)
+    const tx=ox2, ty=oy2-h;
+    const tpts=`${F(tx)},${F(ty)} ${F(tx+dx)},${F(ty+dy)} ${F(tx)},${F(ty+2*dy)} ${F(tx-dx)},${F(ty+dy)}`;
+    s+=`<polygon points="${tpts}" fill="white" opacity="0.9"/>`;
+    // Left face
+    const lpts=`${F(tx-dx)},${F(ty+dy)} ${F(tx)},${F(ty+2*dy)} ${F(tx)},${F(ty+2*dy+h)} ${F(tx-dx)},${F(ty+dy+h)}`;
+    s+=`<polygon points="${lpts}" fill="white" opacity="0.55"/>`;
+    // Right face
+    const rpts=`${F(tx)},${F(ty+2*dy)} ${F(tx+dx)},${F(ty+dy)} ${F(tx+dx)},${F(ty+dy+h)} ${F(tx)},${F(ty+2*dy+h)}`;
+    s+=`<polygon points="${rpts}" fill="white" opacity="0.35"/>`;
+  }
+  return s;
+}
+
+// RAIN — vertical rainfall columns: outside = hairline dots, inside = dense solid bars
+// Creates that vertical data-stream / matrix look
+function rRain(d){
+  const colW=S.size+S.gap;
+  const dropH=Math.max(2,S.size*S.stretch);
+  const spacing=Math.max(dropH+1,S.gap*3);
+  let s='';
+  for(let x=colW/2;x<VW;x+=colW){
+    const cx=x+jx();
+    for(let y=0;y<VH;y+=spacing){
+      const wa=S.waveAmp>0?Math.sin(x/VW*Math.PI*2*S.waveFreq)*S.waveAmp:0;
+      const den=dens(d,x,y+dropH/2+wa,dropH);
+      if(den<.04){
+        // ghost dot outside
+        s+=`<rect x="${F(cx-S.baselineThick/2)}" y="${F(y+jy())}" width="${F(S.baselineThick)}" height="${F(S.baselineThick)}" fill="white" ${BL()}/>`;
+      }else{
+        const h=Math.max(2,dropH*den);
+        s+=`<rect x="${F(cx-colW*.35)}" y="${F(y+jy())}" width="${F(colW*.7)}" height="${F(h)}" fill="white"/>`;
+      }
+    }
+  }
+  return s;
+}
+
+// STRIPE — full-width horizontal stripes interrupted/cut by the text boundary
+// Background stripes everywhere; inside text the stripes flip (show gap)
+function rStripe(d){
+  const thick=Math.max(1,S.size*S.stretch);
+  const gap2=Math.max(1,S.gap);
+  const period=thick+gap2;
+  let s='';
+  for(let y=thick/2;y<VH;y+=period){
+    // Draw stripe as two halves: where NOT text = thin dim, where text = thick bright  
+    s+=`<line x1="0" y1="${F(y)}" x2="${VW}" y2="${F(y)}" stroke="white" stroke-width="${F(S.baselineThick)}" opacity="${F(S.baselineOpacity/100)}"/>`;
+    // Bright thick portions only over text
+    let inT=false,sx=0;
+    for(let x=0;x<=VW+1;x++){
+      const h=hit(d,x,y);
+      if(h&&!inT){inT=true;sx=x;}
+      else if(!h&&inT){inT=false;s+=`<rect x="${sx}" y="${F(y-thick/2)}" width="${x-sx}" height="${F(thick)}" fill="white"/>`;}
+    }
+    if(inT)s+=`<rect x="${sx}" y="${F(y-thick/2)}" width="${VW-sx}" height="${F(thick)}" fill="white"/>`;
+  }
+  return s;
+}
+
+// GRID — dense orthogonal grid where letterform REMOVES cells (negative space)
+// Think: punched metal plate. Background grid everywhere; cells inside text vanish.
+function rGrid(d){
+  const step=S.size+S.gap;
+  const sz=Math.max(1,S.size*.8*S.stretch);
+  let s='';
+  // Draw full grid of squares, skip those hit by text
+  for(let y=step/2;y<VH;y+=step)for(let x=step/2;x<VW;x+=step){
+    if(hit(d,x,y))continue;
+    s+=shp('rect',{x:F(x-sz/2),y:F(y-sz/2),width:F(sz),height:F(sz)});
+  }
+  return s;
+}
+
+// RINGS — concentric square rings from each grid point, sized by density
+// Creates a sonar-ping / data-pulse aesthetic
+function rRings(d){
+  const step=S.size+S.gap;
+  const maxR=step*.55*S.stretch;
+  const sw=Math.max(.3,S.baselineThick);
+  let s='';
+  for(let y=step/2;y<VH;y+=step)for(let x=step/2;x<VW;x+=step){
+    const den=dens(d,x,y,step*.5);if(den<.04)continue;
+    const cx=x+jx(),cy=y+jy();
+    const rings=Math.max(1,Math.round(S.segs/8)+1);
+    for(let ri=1;ri<=rings;ri++){
+      const r=maxR*den*(ri/rings);
+      const op=(1-ri/rings)*.8+.15;
+      s+=`<rect x="${F(cx-r)}" y="${F(cy-r)}" width="${F(r*2)}" height="${F(r*2)}" fill="none" stroke="white" stroke-width="${F(sw)}" opacity="${F(op)}"/>`;
+    }
+  }
+  return s;
+}
+
+// CONNX — dots with connection lines to neighbors (Nike halftone grid lines)
+// Each filled grid node emits a dot, plus lines to right and down neighbors if they're also filled
+function rConnx(d){
+  const step=S.size+S.gap;
+  const r=Math.max(1,S.size*.4);
+  const lw=Math.max(.3,S.baselineThick);
+  let s='';
+  // Collect filled positions first
+  const filled=new Set();
+  for(let row=0;row*step<VH+step;row++){
+    for(let col=0;col*step<VW+step;col++){
+      const x=col*step+step/2,y=row*step+step/2;
+      const wa=S.waveAmp>0?Math.sin(y/VH*Math.PI*2*S.waveFreq)*S.waveAmp:0;
+      if(hit(d,x+wa,y))filled.add(`${col},${row}`);
+    }
+  }
+  // Draw lines then dots (lines behind)
+  filled.forEach(key=>{
+    const[c,r2]=key.split(',').map(Number);
+    const x=c*step+step/2,y=r2*step+step/2;
+    const wa=S.waveAmp>0?Math.sin(y/VH*Math.PI*2*S.waveFreq)*S.waveAmp:0;
+    const cx=x+wa+jx(),cy=y+jy();
+    // Right neighbor
+    if(filled.has(`${c+1},${r2}`)){
+      const nx=(c+1)*step+step/2,nwa=S.waveAmp>0?Math.sin(cy/VH*Math.PI*2*S.waveFreq)*S.waveAmp:0;
+      s+=`<line x1="${F(cx)}" y1="${F(cy)}" x2="${F(nx+nwa)}" y2="${F(cy)}" ${BL()}/>`;
+    }
+    // Down neighbor
+    if(filled.has(`${c},${r2+1}`)){
+      const ny=(r2+1)*step+step/2;
+      s+=`<line x1="${F(cx)}" y1="${F(cy)}" x2="${F(cx)}" y2="${F(ny)}" ${BL()}/>`;
+    }
+  });
+  // Dots on top
+  filled.forEach(key=>{
+    const[c,r2]=key.split(',').map(Number);
+    const x=c*step+step/2,y=r2*step+step/2;
+    const wa=S.waveAmp>0?Math.sin(y/VH*Math.PI*2*S.waveFreq)*S.waveAmp:0;
+    const cx=x+wa+jx(),cy=y+jy();
+    const dr=r*(1+dens(d,x,y,step*.5)*.6)*S.stretch;
+    s+=shp('circle',{cx:F(cx),cy:F(cy),r:F(dr)});
+  });
+  return s;
+}
+
+// TECHG — tech annotation grid: dots at every node, lines only inside text,
+// with small tick marks extending beyond text edges (circuit-board meets blueprint)
+function rTechg(d){
+  const step=S.size+S.gap;
+  const r=Math.max(.8,S.size*.25);
+  const lw=Math.max(.3,S.baselineThick);
+  const tick=step*.55*S.stretch;
+  let lines='',dots='';
+  for(let row=0;row*step<=VH+step;row++){
+    for(let col=0;col*step<=VW+step;col++){
+      const x=col*step+step/2,y=row*step+step/2;
+      const wa=S.waveAmp>0?Math.sin(y/VH*Math.PI*2*S.waveFreq)*S.waveAmp:0;
+      const isH=hit(d,x+wa,y);
+      const rN=hit(d,x+step+wa,y),dN=hit(d,x+wa,y+step);
+      const cx=x+wa+jx(),cy=y+jy();
+      // Horizontal connector
+      if(isH&&rN)lines+=`<line x1="${F(cx)}" y1="${F(cy)}" x2="${F(cx+step)}" y2="${F(cy)}" ${BL()}/>`;
+      // Vertical connector
+      if(isH&&dN)lines+=`<line x1="${F(cx)}" y1="${F(cy)}" x2="${F(cx)}" y2="${F(cy+step)}" ${BL()}/>`;
+      // Edge ticks: node is filled but neighbor isn't — draw a short outward tick
+      if(isH&&!rN)lines+=`<line x1="${F(cx)}" y1="${F(cy)}" x2="${F(cx+tick)}" y2="${F(cy)}" stroke="${S.baselineColor}" stroke-width="${F(lw)}" opacity="${F(S.baselineOpacity/100*.5)}"/>`;
+      if(!isH&&rN)lines+=`<line x1="${F(cx+step-tick)}" y1="${F(cy)}" x2="${F(cx+step)}" y2="${F(cy)}" stroke="${S.baselineColor}" stroke-width="${F(lw)}" opacity="${F(S.baselineOpacity/100*.5)}"/>`;
+      if(isH&&!dN)lines+=`<line x1="${F(cx)}" y1="${F(cy)}" x2="${F(cx)}" y2="${F(cy+tick)}" stroke="${S.baselineColor}" stroke-width="${F(lw)}" opacity="${F(S.baselineOpacity/100*.5)}"/>`;
+      if(!isH&&dN)lines+=`<line x1="${F(cx)}" y1="${F(cy+step-tick)}" x2="${F(cx)}" y2="${F(cy+step)}" stroke="${S.baselineColor}" stroke-width="${F(lw)}" opacity="${F(S.baselineOpacity/100*.5)}"/>`;
+      // Dot at every node (filled = bright, empty = ghost)
+      if(isH)dots+=`<circle cx="${F(cx)}" cy="${F(cy)}" r="${F(r*S.stretch)}" fill="white"/>`;
+      else if(S.jitter<20)dots+=`<circle cx="${F(cx)}" cy="${F(cy)}" r="${F(r*.35)}" fill="white" opacity="0.12"/>`;
+    }
+  }
+  return lines+dots;
+}
+
+// VARVL — variable-width VERTICAL lines (counterpart to VARL)
+// Vertical scanlines that swell where text is present
+function rVarvl(d){
+  const step=S.size+S.gap;
+  const maxT=Math.max(2,S.size*S.stretch);
+  const baseT=S.baselineThick;
+  let s='';
+  for(let x=step/2;x<VW;x+=step){
+    // Full-height background hairline
+    s+=`<line x1="${F(x)}" y1="0" x2="${F(x)}" y2="${VH}" ${BL()}/>`;
+    let inT=false,sy=0,curT=baseT;
+    for(let y=0;y<=VH+1;y++){
+      const wa=S.waveAmp>0?Math.sin(y/VH*Math.PI*2*S.waveFreq)*S.waveAmp:0;
+      const den=dens(d,x+wa,y,Math.max(2,step*.4));
+      const thick=baseT+(maxT-baseT)*den;
+      const isText=px(d,x+wa,y);
+      if(isText&&!inT){inT=true;sy=y;curT=thick;}
+      else if(isText&&inT){if(Math.abs(thick-curT)>0.6){if(y-sy>0)s+=`<rect x="${F(x-curT/2+jx())}" y="${sy}" width="${F(curT)}" height="${y-sy}" fill="white"/>`;sy=y;curT=thick;}}
+      else if(!isText&&inT){inT=false;if(y-sy>0)s+=`<rect x="${F(x-curT/2+jx())}" y="${sy}" width="${F(curT)}" height="${y-sy}" fill="white"/>`;}
+    }
+    if(inT)s+=`<rect x="${F(x-curT/2)}" y="${sy}" width="${F(curT)}" height="${VH-sy}" fill="white"/>`;
+  }
+  return s;
+}
 function getMaskDataURL(){return oc.toDataURL('image/png');}
-function rPrism(d){const sliceH=Math.max(2,S.size),maxDisp=60+S.waveAmp*1.5,freq=S.waveFreq*.3,img=getMaskDataURL();let s='<defs>';let imgs='';let ci=0;for(let y=0;y<VH;y+=sliceH){const progress=y/VH,disp=Math.sin(progress*Math.PI*2*freq)*maxDisp*S.stretch,dy=S.jitter>0?(Math.random()-.5)*S.jitter*.2:0,id=`pclip${ci++}`,h2=Math.min(sliceH,VH-y);s+=`<clipPath id="${id}"><rect x="0" y="${y}" width="${VW}" height="${h2}"/></clipPath>`;imgs+=`<image href="${img}" x="${F(disp)}" y="0" width="${VW}" height="${VH}" clip-path="url(#${id})" image-rendering="pixelated"/>`;}s+='</defs>'+imgs;return s;}
-function rShear(d){const sliceH=Math.max(2,S.size),maxShear=(80+S.waveAmp)*S.stretch,img=getMaskDataURL();let s='<defs>';let imgs='';let ci=0;for(let y=0;y<VH;y+=sliceH){const t=y/VH,disp=(t-.5)*maxShear+(S.jitter>0?(Math.random()-.5)*S.jitter*.3:0),id=`shclip${ci++}`,h2=Math.min(sliceH,VH-y);s+=`<clipPath id="${id}"><rect x="0" y="${y}" width="${VW}" height="${h2}"/></clipPath>`;imgs+=`<image href="${img}" x="${F(disp)}" y="0" width="${VW}" height="${VH}" clip-path="url(#${id})" image-rendering="pixelated"/>`;}s+='</defs>'+imgs;return s;}
-function rScatter(d){const chunkW=Math.max(20,S.size*3),chunkH=Math.max(10,S.size*1.5),img=getMaskDataURL();let s='<defs>';let imgs='';let ci=0;const numX=Math.ceil(VW/chunkW),numY=Math.ceil(VH/chunkH);for(let row=0;row<numY;row++)for(let col=0;col<numX;col++){const srcX=col*chunkW,srcY=row*chunkH;if(!hit(d,srcX+chunkW/2,srcY+chunkH/2)&&!hit(d,srcX+chunkW*.25,srcY+chunkH/2)&&!hit(d,srcX+chunkW*.75,srcY+chunkH/2))continue;const maxJit=(30+S.waveAmp*1.5)*S.stretch,dx2=(Math.random()-.5)*maxJit+(S.jitter>0?(Math.random()-.5)*S.jitter*.4:0),dy2=(Math.random()-.5)*maxJit*.6,id=`scclip${ci++}`;s+=`<clipPath id="${id}"><rect x="${F(srcX+dx2)}" y="${F(srcY+dy2)}" width="${chunkW}" height="${chunkH}"/></clipPath>`;imgs+=`<image href="${img}" x="${F(dx2)}" y="${F(dy2)}" width="${VW}" height="${VH}" clip-path="url(#${id})" image-rendering="pixelated"/>`;}s+='</defs>'+imgs;return s;}
-function rSkewCols(d){const colW=Math.max(2,S.size),maxSkew=(50+S.waveAmp)*S.stretch,freq=S.waveFreq*.4,img=getMaskDataURL();let s='<defs>';let imgs='';let ci=0;for(let x=0;x<VW;x+=colW){const progress=x/VW,dy=Math.sin(progress*Math.PI*2*freq)*maxSkew+(S.jitter>0?(Math.random()-.5)*S.jitter*.3:0),w2=Math.min(colW,VW-x),id=`skclip${ci++}`;s+=`<clipPath id="${id}"><rect x="${x}" y="0" width="${w2}" height="${VH}"/></clipPath>`;imgs+=`<image href="${img}" x="0" y="${F(dy)}" width="${VW}" height="${VH}" clip-path="url(#${id})" image-rendering="pixelated"/>`;}s+='</defs>'+imgs;return s;}
-function rMirror(d){const img=getMaskDataURL(),off=(20+S.waveAmp*.5)*S.stretch;let s=`<defs><clipPath id="ml"><rect x="0" y="0" width="${VW/2}" height="${VH}"/></clipPath></defs>`;s+=`<image href="${img}" x="0" y="0" width="${VW}" height="${VH}" opacity=".7" image-rendering="pixelated"/>`;s+=`<image href="${img}" x="${F(off)}" y="0" width="${VW}" height="${VH}" opacity=".7" transform="scale(-1,1) translate(-${VW},0)" image-rendering="pixelated"/>`;s+=`<image href="${img}" x="0" y="${F(off*.4)}" width="${VW}" height="${VH}" opacity=".4" transform="scale(1,-1) translate(0,-${VH})" image-rendering="pixelated"/>`;return s;}
-function rRipslice(d){const sliceH=Math.max(2,S.size),amp=30+S.waveAmp,freq=S.waveFreq*.5,img=getMaskDataURL();let s='<defs>';let imgs='';let ci=0;for(let y=0;y<VH;y+=sliceH){const dy2=Math.sin((y/VH)*Math.PI*2*freq)*amp*S.stretch+(S.jitter>0?(Math.random()-.5)*S.jitter*.3:0),scaleX=1+(Math.sin((y/VH)*Math.PI*2*freq*.7)*.12*S.stretch),id=`rpclip${ci++}`,h2=Math.min(sliceH,VH-y),ox2=VW/2*(1-scaleX);s+=`<clipPath id="${id}"><rect x="0" y="${y}" width="${VW}" height="${h2}"/></clipPath>`;imgs+=`<image href="${img}" x="${F(ox2)}" y="${F(dy2)}" width="${F(VW*scaleX)}" height="${VH}" clip-path="url(#${id})" preserveAspectRatio="none" image-rendering="pixelated"/>`;}s+='</defs>'+imgs;return s;}
-function rGlitch(d){const sliceH=S.size,maxD=30+S.waveAmp;let s='';for(let y=0;y<VH;y+=sliceH){const disp=(Math.random()-.5)*maxD*2;let inT=false,sx=0;for(let x=0;x<=VW+1;x++){const h=hit(d,x,y+sliceH/2);if(h&&!inT){inT=true;sx=x;}else if(!h&&inT){inT=false;const xd=Math.max(0,Math.min(VW,sx+disp));const w=Math.max(0,Math.min(VW-xd,x-sx));if(w>0)s+=`<rect x="${F(xd)}" y="${y}" width="${F(w)}" height="${sliceH}" fill="white"/>`;}}if(inT){const xd=Math.max(0,sx+disp);if(xd<VW)s+=`<rect x="${F(xd)}" y="${y}" width="${F(Math.min(VW-xd,VW-sx))}" height="${sliceH}" fill="white"/>`;}}return s;}
-function rKaleid(d){const img=getMaskDataURL(),jitx=S.jitter>0?(Math.random()-.5)*S.jitter*.3:0,jity=S.jitter>0?(Math.random()-.5)*S.jitter*.3:0;let s=`<defs><clipPath id="kq1"><rect x="0" y="0" width="${VW/2}" height="${VH/2}"/></clipPath><clipPath id="kq2"><rect x="${VW/2}" y="0" width="${VW/2}" height="${VH/2}"/></clipPath><clipPath id="kq3"><rect x="0" y="${VH/2}" width="${VW/2}" height="${VH/2}"/></clipPath><clipPath id="kq4"><rect x="${VW/2}" y="${VH/2}" width="${VW/2}" height="${VH/2}"/></clipPath></defs>`;s+=`<image href="${img}" x="${F(jitx)}" y="${F(jity)}" width="${VW}" height="${VH}" clip-path="url(#kq1)" image-rendering="pixelated"/>`;s+=`<image href="${img}" x="${F(-jitx)}" y="${F(jity)}" width="${VW}" height="${VH}" clip-path="url(#kq2)" transform="scale(-1,1) translate(-${VW},0)" image-rendering="pixelated"/>`;s+=`<image href="${img}" x="${F(jitx)}" y="${F(-jity)}" width="${VW}" height="${VH}" clip-path="url(#kq3)" transform="scale(1,-1) translate(0,-${VH})" image-rendering="pixelated"/>`;s+=`<image href="${img}" x="${F(-jitx)}" y="${F(-jity)}" width="${VW}" height="${VH}" clip-path="url(#kq4)" transform="scale(-1,-1) translate(-${VW},-${VH})" image-rendering="pixelated"/>`;return s;}
 // ─── GLASS / LENS EFFECTS ─────────────────────────────────────
 // These use SVG feDisplacementMap — the same mechanic as Photoshop's displacement map.
 // A repeating gradient pattern (like the reeded-glass reference image) is generated
@@ -492,54 +799,204 @@ function rAccord(d){
   return `<defs><filter id="accf" filterUnits="userSpaceOnUse" primitiveUnits="userSpaceOnUse" x="0" y="${-fp}" width="${VW}" height="${VH+fp*2}" color-interpolation-filters="sRGB"><feImage href="${dm}" result="dm" x="0" y="0" width="${VW}" height="${VH}" preserveAspectRatio="none"/><feDisplacementMap in="SourceGraphic" in2="dm" scale="${F(scale)}" xChannelSelector="R" yChannelSelector="G"/></filter></defs><image href="${textImg}" x="0" y="0" width="${VW}" height="${VH}" filter="url(#accf)"/>`;
 }
 
-// STACKR — N screen-blended vertical offset copies (ref img 2: layered "work")
-function rStackr(d){
-  const img=getMaskDataURL();
-  const N=Math.max(2,Math.min(20,S.segs));
-  const spacing=(S.size+S.gap)*S.stretch;
-  const totalOff=spacing*(N-1);
-  let imgs='';
-  for(let i=0;i<N;i++){
-    const t=i/(N-1);
-    const dy=(t-.5)*totalOff+(S.jitter>0?(Math.random()-.5)*S.jitter*.3:0);
-    const dx=S.waveAmp>0?Math.sin(t*Math.PI*2*S.waveFreq)*S.waveAmp*.5:0;
-    imgs+=`<image href="${img}" x="${F(dx)}" y="${F(dy)}" width="${VW}" height="${VH}" style="mix-blend-mode:screen" image-rendering="crisp-edges"/>`;
+// ─── VAR* EFFECTS — density-mapped shape variants ─────────────
+// Shared helper: samples density at each scanline position and returns
+// a fill weight 0..1. Also handles the background grid line with baselineThick.
+
+function varScan(d,drawFn){
+  const step=S.size+S.gap;
+  const maxT=Math.max(2,S.size*S.stretch);
+  const baseT=S.baselineThick;
+  let s='';
+  for(let y=step/2;y<VH;y+=step){
+    // Full-width background hairline at user-controlled thickness
+    s+=`<line x1="0" y1="${F(y)}" x2="${VW}" y2="${F(y)}" ${BL()}/>`;
+    // Walk across and emit shapes proportional to local density
+    for(let x=0;x<=VW;x+=Math.max(1,step*.25)){
+      const wa=S.waveAmp>0?Math.sin(x/VW*Math.PI*2*S.waveFreq)*S.waveAmp:0;
+      const den=dens(d,x,y+wa,Math.max(2,step*.4));
+      if(den<.04)continue;
+      const t=baseT+(maxT-baseT)*den;
+      s+=drawFn(x,y+wa+jy(),t,den);
+    }
   }
-  return imgs;
+  return s;
 }
 
-// LENSV — barrel/pincushion lens: per-row horizontal scaling
-function rLensv(d){
-  const img=getMaskDataURL();
-  const sliceH=Math.max(1,Math.round(S.size*.5));
-  const amp=S.stretch;
-  let defs='',imgs='',ci=0;
-  for(let y=0;y<VH;y+=sliceH){
-    const t=(y+sliceH/2)/VH-.5;
-    const scaleX=1+(1-t*t*4)*(amp-1);
-    const ox3=VW/2*(1-scaleX);
-    const wave=S.waveAmp>0?Math.sin(y/VH*Math.PI*2*S.waveFreq)*S.waveAmp*.3:0;
-    const h2=Math.min(sliceH,VH-y);
-    defs+=`<clipPath id="lv${ci}"><rect x="0" y="${y}" width="${VW}" height="${h2}"/></clipPath>`;
-    imgs+=`<image href="${img}" x="${F(ox3+wave)}" y="0" width="${F(VW*scaleX)}" height="${VH}" clip-path="url(#lv${ci++})" preserveAspectRatio="none" image-rendering="crisp-edges"/>`;
+// VARL — horizontal bars, width tapers at edges (original)
+function rVarline(d){
+  const step=S.size+S.gap;
+  const maxT=Math.max(2,S.size*S.stretch);
+  const baseT=S.baselineThick;
+  let s='';
+  for(let y=step/2;y<VH;y+=step){
+    s+=`<line x1="0" y1="${F(y)}" x2="${VW}" y2="${F(y)}" ${BL()}/>`;
+    let inT=false,sx=0,curT=baseT;
+    for(let x=0;x<=VW+1;x++){
+      const wa=S.waveAmp>0?Math.sin(x/VW*Math.PI*2*S.waveFreq)*S.waveAmp:0;
+      const den=dens(d,x,y+wa,Math.max(2,step*.4));
+      const thick=baseT+(maxT-baseT)*den;
+      const isText=px(d,x,y+wa);
+      if(isText&&!inT){inT=true;sx=x;curT=thick;}
+      else if(isText&&inT){if(Math.abs(thick-curT)>0.6){if(x-sx>0)s+=`<rect x="${sx}" y="${F(y-curT/2+jy())}" width="${x-sx}" height="${F(curT)}" fill="white"/>`;sx=x;curT=thick;}}
+      else if(!isText&&inT){inT=false;if(x-sx>0)s+=`<rect x="${sx}" y="${F(y-curT/2+jy())}" width="${x-sx}" height="${F(curT)}" fill="white"/>`;}
+    }
+    if(inT)s+=`<rect x="${sx}" y="${F(y-curT/2)}" width="${VW-sx}" height="${F(curT)}" fill="white"/>`;
   }
-  return `<defs>${defs}</defs>${imgs}`;
+  return s;
 }
 
-const fns={ovals:rOvals,circles:rCircles,squares:rSquares,diamonds:rDiamonds,triangles:rTriangles,halftone:rHalftone,hex:rHex,static:rStatic,hlines:rHLines,vlines:rVLines,barcode:rBarcode,scan:rScan,segments:rSegments,diagonal:rDiagonal,xhatch:rXHatch,morse:rMorse,waveh:rWaveH,wavev:rWaveV,radial:rRadial,circuit:rCircuit,arcseg:rArcSeg,optical:rOptical,contour:rContour,prism:rPrism,shear:rShear,scatter:rScatter,skewcols:rSkewCols,mirror:rMirror,ripslice:rRipslice,glitch:rGlitch,kaleid:rKaleid,lentic:rLentic,accord:rAccord,stackr:rStackr,lensv:rLensv};
+// VARC — circles that scale with density
+function rVarcircle(d){
+  const step=S.size+S.gap;
+  const baseT=S.baselineThick;
+  const maxR=S.size/2*S.stretch;
+  let s='';
+  for(let y=step/2;y<VH;y+=step){
+    s+=`<line x1="0" y1="${F(y)}" x2="${VW}" y2="${F(y)}" ${BL()}/>`;
+    for(let x=step/2;x<VW;x+=step){
+      const wa=S.waveAmp>0?Math.sin(x/VW*Math.PI*2*S.waveFreq)*S.waveAmp:0;
+      const den=dens(d,x,y+wa,Math.max(2,step*.5));
+      if(den<.05)continue;
+      const r=Math.max(baseT,maxR*den);
+      const cx=x+jx(),cy=y+wa+jy();
+      if(S.strokeOnly)s+=`<circle cx="${F(cx)}" cy="${F(cy)}" r="${F(r)}" fill="none" stroke="white" stroke-width="${F(S.strokeWidth)}"/>`;
+      else s+=`<circle cx="${F(cx)}" cy="${F(cy)}" r="${F(r)}" fill="white"/>`;
+    }
+  }
+  return s;
+}
+
+// VARX — cross/plus shapes that grow with density
+function rVarcross(d){
+  const step=S.size+S.gap;
+  const baseT=S.baselineThick;
+  const maxSz=S.size*S.stretch;
+  let s='';
+  for(let y=step/2;y<VH;y+=step){
+    s+=`<line x1="0" y1="${F(y)}" x2="${VW}" y2="${F(y)}" ${BL()}/>`;
+    for(let x=step/2;x<VW;x+=step){
+      const wa=S.waveAmp>0?Math.sin(x/VW*Math.PI*2*S.waveFreq)*S.waveAmp:0;
+      const den=dens(d,x,y+wa,Math.max(2,step*.5));
+      if(den<.05)continue;
+      const sz=Math.max(1,maxSz*den);
+      const arm=sz/2,thick=Math.max(baseT,arm*.45);
+      const cx=x+jx(),cy=y+wa+jy();
+      s+=`<rect x="${F(cx-arm)}" y="${F(cy-thick/2)}" width="${F(sz)}" height="${F(thick)}" fill="white"/>`;
+      s+=`<rect x="${F(cx-thick/2)}" y="${F(cy-arm)}" width="${F(thick)}" height="${F(sz)}" fill="white"/>`;
+    }
+  }
+  return s;
+}
+
+// VARO — oval/ellipse shapes, horizontally stretched, density-scaled
+function rVarovl(d){
+  const step=S.size+S.gap;
+  const baseT=S.baselineThick;
+  const maxRx=S.size*S.stretch;
+  const maxRy=S.size/2.2/Math.max(.1,S.stretch);
+  let s='';
+  for(let y=step/2;y<VH;y+=step){
+    s+=`<line x1="0" y1="${F(y)}" x2="${VW}" y2="${F(y)}" ${BL()}/>`;
+    for(let x=step/2;x<VW;x+=step){
+      const wa=S.waveAmp>0?Math.sin(x/VW*Math.PI*2*S.waveFreq)*S.waveAmp:0;
+      const den=dens(d,x,y+wa,Math.max(2,step*.5));
+      if(den<.05)continue;
+      const rx=Math.max(baseT,maxRx*den);
+      const ry=Math.max(baseT*.5,maxRy*den);
+      const cx=x+jx(),cy=y+wa+jy();
+      if(S.strokeOnly)s+=`<ellipse cx="${F(cx)}" cy="${F(cy)}" rx="${F(rx)}" ry="${F(ry)}" fill="none" stroke="white" stroke-width="${F(S.strokeWidth)}"/>`;
+      else s+=`<ellipse cx="${F(cx)}" cy="${F(cy)}" rx="${F(rx)}" ry="${F(ry)}" fill="white"/>`;
+    }
+  }
+  return s;
+}
+
+const fns={ovals:rOvals,circles:rCircles,squares:rSquares,diamonds:rDiamonds,triangles:rTriangles,halftone:rHalftone,hex:rHex,static:rStatic,pixl:rPixl,rings:rRings,iso3d:rIso3d,connx:rConnx,techg:rTechg,hlines:rHLines,vlines:rVLines,varline:rVarline,varvl:rVarvl,barcode:rBarcode,scan:rScan,stripe:rStripe,varcircle:rVarcircle,varcross:rVarcross,varovl:rVarovl,segments:rSegments,diagonal:rDiagonal,morse:rMorse,edge:rEdge,rain:rRain,grid:rGrid,lentic:rLentic,accord:rAccord};
 let rt=null;
 function render(){clearTimeout(rt);rt=setTimeout(_render,25);}
-function _render(){const layer=document.getElementById('layer'),bgR=document.getElementById('bgR');layer.setAttribute('transform','');const glassEffects=['prism','shear','scatter','skewcols','mirror','ripslice','kaleid','lentic','accord','stackr','lensv'];bgR.setAttribute('fill',S.invert&&!glassEffects.includes(S.effect)?'#ffffff':'#000000');const d=buildMask();const fn=fns[S.effect];if(!fn){document.getElementById('layer').innerHTML='';return;}const result=fn(d);const spliceEffects=['prism','shear','scatter','skewcols','mirror','ripslice','kaleid','lentic','accord','stackr','lensv'];if(spliceEffects.includes(S.effect)){const m=result.match(/^<defs>([\s\S]*?)<\/defs>([\s\S]*)$/);if(m){document.getElementById('svgDefs').innerHTML=m[1];layer.innerHTML=m[2];}else{document.getElementById('svgDefs').innerHTML='';layer.innerHTML=result;}}else{document.getElementById('svgDefs').innerHTML='';layer.innerHTML=result;}}
+
+// Generates a hairline SVG grid overlay at step spacing
+function gridOverlaySVG(step,op){
+  const col=`rgba(255,255,255,${(op/100).toFixed(2)})`;
+  let s='';
+  for(let x=step/2;x<VW;x+=step)s+=`<line x1="${F(x)}" y1="0" x2="${F(x)}" y2="${VH}" stroke="${col}" stroke-width="0.5"/>`;
+  for(let y=step/2;y<VH;y+=step)s+=`<line x1="0" y1="${F(y)}" x2="${VW}" y2="${F(y)}" stroke="${col}" stroke-width="0.5"/>`;
+  return s;
+}
+
+function _render(){
+  const layer=document.getElementById('layer'),bgR=document.getElementById('bgR');
+  layer.setAttribute('transform','');
+  const glassEffects=['lentic','accord'];
+  bgR.setAttribute('fill','#000000');
+  const d=buildMask();
+  const fn=fns[S.effect];
+  if(!fn){document.getElementById('layer').innerHTML='';return;}
+  const result=fn(d);
+  const spliceEffects=glassEffects;
+  let mainSVG='';
+  if(spliceEffects.includes(S.effect)){
+    const m=result.match(/^<defs>([\s\S]*?)<\/defs>([\s\S]*)$/);
+    if(m){document.getElementById('svgDefs').innerHTML=m[1];mainSVG=m[2];}
+    else{document.getElementById('svgDefs').innerHTML='';mainSVG=result;}
+  }else{
+    document.getElementById('svgDefs').innerHTML='';
+    mainSVG=result;
+  }
+  // Append grid overlay if enabled
+  if(S.gridOverlay&&!spliceEffects.includes(S.effect)){
+    const step=S.size+S.gap;
+    mainSVG+=gridOverlaySVG(step,S.gridOpacity);
+  }
+  layer.innerHTML=mainSVG;
+}
 function expSVG(){const svg=document.getElementById('svgOut');let str=new XMLSerializer().serializeToString(svg);const blob=new Blob([str],{type:'image/svg+xml'});const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=`xtype_${S.text.toLowerCase().replace(/[^a-z0-9]/g,'_')}_${S.effect}.svg`;a.click();URL.revokeObjectURL(a.href);}
 function expPNG(){const svg=document.getElementById('svgOut');// Temporarily reset transform for export
 const prevT=svg.style.transform;svg.style.transform='';const str=new XMLSerializer().serializeToString(svg);svg.style.transform=prevT;const img=new Image();const sc=3;img.onload=()=>{const c=document.createElement('canvas');c.width=VW*sc;c.height=VH*sc;const ctx=c.getContext('2d');ctx.scale(sc,sc);ctx.drawImage(img,0,0);const a=document.createElement('a');a.download=`xtype_${S.text.toLowerCase().replace(/[^a-z0-9]/g,'_')}_${S.effect}.png`;a.href=c.toDataURL('image/png');a.click();};img.src='data:image/svg+xml;charset=utf-8,'+encodeURIComponent(str);}
-function rnd(){const effKeys=Object.keys(fns);S.effect=effKeys[Math.floor(Math.random()*effKeys.length)];S.size=Math.floor(Math.random()*25)+3;S.gap=Math.floor(Math.random()*18);S.stretch=+(Math.random()*3.5+.1).toFixed(2);S.waveAmp=Math.floor(Math.random()*50);S.waveFreq=Math.floor(Math.random()*16)+1;S.jitter=Math.floor(Math.random()*70);S.segs=Math.floor(Math.random()*24)+4;S.invert=Math.random()>.6;S.strokeOnly=Math.random()>.75;S.strokeWidth=+(Math.random()*3+.5).toFixed(1);syncAllUI();render();}
+function rnd(){
+  const skipGlass=['lentic','accord'];
+  // Also skip edge (slow) and iso3d from random for performance
+  const skip=[...skipGlass,'edge'];
+  const effKeys=Object.keys(fns).filter(k=>!skip.includes(k));
+  S.effect=effKeys[Math.floor(Math.random()*effKeys.length)];
+  S.size=Math.floor(Math.random()*22)+3;
+  S.gap=Math.floor(Math.random()*16);
+  S.stretch=+(Math.random()*3+.2).toFixed(2);
+  S.baselineThick=+(Math.random()*2+.2).toFixed(1);
+  S.waveAmp=0;        // user rule: always 0
+  S.waveFreq=4;       // user rule: always 0 (reset to default)
+  S.jitter=Math.floor(Math.random()*71);  // user rule: 0–70
+  S.segs=Math.floor(Math.random()*20)+4;
+  S.strokeOnly=Math.random()>.8;
+  S.strokeWidth=+(Math.random()*2.5+.4).toFixed(1);
+  S.gridOverlay=Math.random()>.6;
+  S.gridOpacity=Math.floor(Math.random()*30)+5;
+  syncAllUI();render();
+}
 
 // ── Pan/Zoom for Typo Engine canvas ────────────────────────────
 let cvScale=1,cvPanX=0,cvPanY=0,cvDragging=false,cvDragStart=null,cvDragOrigin=null;
+let cvSpaceDown=false;
 function cvApplyTransform(){const svg=document.getElementById('svgOut');svg.style.transform=`translate(${cvPanX}px,${cvPanY}px) scale(${cvScale})`;document.getElementById('cvZoomLabel').textContent=Math.round(cvScale*100)+'%';}
 function cvResetView(){cvScale=1;cvPanX=0;cvPanY=0;cvApplyTransform();}
 const cvWrap=document.querySelector('.cv-wrap');
+
+// Spacebar pan — fires on document, active when engine tab is visible
+window.addEventListener('keydown',e=>{
+  if(e.target.tagName==='INPUT'||e.target.tagName==='TEXTAREA')return;
+  if(e.key===' '){
+    e.preventDefault();
+    if(!cvSpaceDown&&document.getElementById('panEngine').classList.contains('on')){
+      cvSpaceDown=true;
+      cvWrap.style.cursor='grab';
+    }
+  }
+},{capture:true});
+window.addEventListener('keyup',e=>{
+  if(e.key===' '){cvSpaceDown=false;if(!cvDragging)cvWrap.style.cursor='default';}
+});
+
 cvWrap.addEventListener('wheel',e=>{
   e.preventDefault();
   const rect=cvWrap.getBoundingClientRect();
@@ -547,14 +1004,18 @@ cvWrap.addEventListener('wheel',e=>{
   const my=e.clientY-rect.top-rect.height/2;
   const factor=e.deltaY<0?1.1:1/1.1;
   const newScale=Math.max(.1,Math.min(10,cvScale*factor));
-  // Zoom towards mouse
   cvPanX=mx-(mx-cvPanX)*(newScale/cvScale);
   cvPanY=my-(my-cvPanY)*(newScale/cvScale);
   cvScale=newScale;
   cvApplyTransform();
 },{passive:false});
 cvWrap.addEventListener('mousedown',e=>{
-  if(e.button===1||(e.button===0&&e.altKey)){e.preventDefault();cvDragging=true;cvDragStart=[e.clientX,e.clientY];cvDragOrigin=[cvPanX,cvPanY];cvWrap.style.cursor='grabbing';}
+  // Space+drag or middle mouse = pan
+  if(e.button===1||(e.button===0&&cvSpaceDown)){
+    e.preventDefault();cvDragging=true;
+    cvDragStart=[e.clientX,e.clientY];cvDragOrigin=[cvPanX,cvPanY];
+    cvWrap.style.cursor='grabbing';
+  }
 });
 window.addEventListener('mousemove',e=>{
   if(!cvDragging)return;
@@ -562,7 +1023,7 @@ window.addEventListener('mousemove',e=>{
   cvPanY=cvDragOrigin[1]+(e.clientY-cvDragStart[1]);
   cvApplyTransform();
 });
-window.addEventListener('mouseup',e=>{if(cvDragging){cvDragging=false;cvWrap.style.cursor='default';}});
+window.addEventListener('mouseup',()=>{if(cvDragging){cvDragging=false;cvWrap.style.cursor=cvSpaceDown?'grab':'default';} });
 
 // ═══════════════════════════════════════════════════════════════
 // GRID DRAW MODULE
@@ -822,9 +1283,16 @@ function gdFloodFill(startKey){
 }
 
 // ── Canvas drawing ──────────────────────────────────────────────
-const GRID_COLOR='rgba(255,255,255,0.07)';
+let gdGridOpacity=7;
 const CELL_COLOR='#ffffff';
 const DOT_COLOR='rgba(255,255,255,0.15)';
+function gdGetGridColor(){return`rgba(255,255,255,${(gdGridOpacity/100).toFixed(2)})`;}
+
+document.getElementById('sGdOp').addEventListener('input',e=>{
+  gdGridOpacity=parseInt(e.target.value);
+  document.getElementById('vGdOp').textContent=gdGridOpacity+'%';
+  gdRedraw();
+});
 
 function gdRedraw(){
   gdx.clearRect(0,0,gdW,gdH);
@@ -859,7 +1327,7 @@ function gdRedraw(){
 
 function gdDrawGrid(){
   const sz=GD.size,ox2=gdOriginX(),oy2=gdOriginY();
-  gdx.strokeStyle=GRID_COLOR;gdx.lineWidth=1;
+  gdx.strokeStyle=gdGetGridColor();gdx.lineWidth=1;
   gdx.beginPath();
 
   if(GD.type==='square'){
